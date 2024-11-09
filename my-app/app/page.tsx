@@ -10,9 +10,6 @@ const Home = (): JSX.Element => {
         <h1>Welcome to my Blog</h1>
         <p>My Name is David Hyppolite a self-taught Cloud Engineer. On this blog I will sharing and Documenting my Journey and thoughts and technologies I am using.</p>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        Copyright MIT
-      </footer>
     </div>
   )
 }
