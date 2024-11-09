@@ -1,9 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-
-const Header = () => {
+// use icon8 for svg's
+const Header = (): JSX.Element => {
   return (
-    <header>
+    <nav>
       <Link href=''>Home</Link>
       <Link href=''>Blog</Link>
 
@@ -14,10 +14,10 @@ const Header = () => {
         rel="noopener noreferrer"
       >
         <Image
-          src="/file.svg"
+          src="/github-mark.svg"
           alt="File icon"
-          width={16}
-          height={16}
+          width={25}
+          height={25}
         />
         GitHub
       </a>
@@ -27,15 +27,16 @@ const Header = () => {
         target="_blank"
         rel="noopener noreferrer"
       >
+        
         <Image
-          src="/window.svg"
+          src="/icons8-linkedin (1).svg"
           alt="Window icon"
-          width={16}
-          height={16}
+          width={25}
+          height={25}
         />
         LinkedIn
       </a>
-    </header>
+    </nav>
   )
 }
 
