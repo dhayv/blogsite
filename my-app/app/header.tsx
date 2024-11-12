@@ -3,12 +3,18 @@ import Link from 'next/link';
 // use icon8 for svg's
 const Header = (): JSX.Element => {
   return (
-    <nav>
-      <Link href=''>Home</Link>
-      <Link href=''>Blog</Link>
+    <nav className="flex flex-wrap justify-center space-x-6 ">
+      
+      <div className='flex items-center space-x-6'>
 
-      <a
-        className="flex items-center gap-2 hover:underline hover:underline-offset-4"
+      <Link href=''>Home</Link>
+      
+      
+      <Link href=''>Blog</Link>
+      </div>
+      
+     <div className='flex items-center space-x-6'>
+     <a
         href="https://github.com/dhayv"
         target="_blank"
         rel="noopener noreferrer"
@@ -19,10 +25,8 @@ const Header = (): JSX.Element => {
           width={25}
           height={25}
         />
-        GitHub
       </a>
       <a
-        className="flex items-center gap-2 hover:underline hover:underline-offset-4"
         href="https://www.linkedin.com/in/david-hyppolite-60560b61/"
         target="_blank"
         rel="noopener noreferrer"
@@ -34,8 +38,12 @@ const Header = (): JSX.Element => {
           width={25}
           height={25}
         />
-        LinkedIn
       </a>
+     </div>
+      
+      
+
+      
     </nav>
   )
 }
