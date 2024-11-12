@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "./header";
+import RecentPost from "./recentpost";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,15 +27,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Header/>
-        <main className="flex-grow">{children}</main>
-        <footer className="flex gap-6 flex-wrap items-center justify-center"> 
-          © {new Date().getFullYear()} David Hyppolite. All rights reserved.</footer>
-
-      </body>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <div className="grid grid-rows-[auto_1fr_auto] min-h-screen p-4 pb-20 gap-10 sm:p-16 font-[family-name:var(--font-geist-sans)]">
+          <Header/>
+          <main>{children}</main>
+          <RecentPost/>
+          
+          <footer className="flex gap-6 flex-wrap items-center justify-center"> 
+            © {new Date().getFullYear()} . All rights reserved.</footer>
+          </div>
+         
+        </body>
     </html>
   );
 }
