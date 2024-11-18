@@ -1,4 +1,13 @@
 *.env
-*.tfvars
+# Terraform files
+**/*.tfvars
+**/.terraform/*
+**/terraform.tfstate*
 .terraform
-terraform.tfstate*
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Next.js
+/my-app/.next/
+/my-app/node_modules/
