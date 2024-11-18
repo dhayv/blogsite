@@ -13,6 +13,22 @@ provider "aws" {
   region = "us-east-1"
 }
 
-resource "a" "name" {
-  
+module "s3_bucket" {
+  source = "./modules/blog/s3.tf"
+}
+
+module "ACM" {
+  source = "./modules/blog/acm.tf"
+}
+
+module "aws_cloudfront" {
+  source = "./modules/blog/cloudfront.tf"
+}
+
+module "aws_route53_zone" {
+  source = "./modules/blog/route53.tf"
+}
+
+module "s3_policy" {
+  source = "./modules/blog/s3-policy.tf"
 }
