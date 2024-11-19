@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "blog" {
 }
 
 resource "aws_s3_bucket_acl" "blog_acl" {
-  bucket = aws_s3_bucket.b.id
+  bucket = aws_s3_bucket.s3_bucket.id
   acl    = "private"
 }
 
@@ -17,7 +17,7 @@ locals {
 
 resource "aws_cloudfront_distribution" "my_distribution" {
   origin {
-    domain_name              = aws_s3_bucket.domain_name.bucket_regional_domain_name
+    domain_name              = aws_s3_bucket.blog.bucket_regional_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.default.id
     origin_id                = local.s3_origin_id
   }
