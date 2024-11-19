@@ -19,39 +19,33 @@ variable "domain_name" {
 }
 
 module "s3_bucket" {
-  source = "./modules/blog/s3.tf"
-  bucket = var.domain_name
-  acl = "private"
-  versioning_enabled = true
+  source = "./modules/blog/s3"
+  domain_name = var.domain_name
 
 } 
 
 module "origin_access" {
-  source = "./modules/blog"
+  source = "./modules/blog/originaccess"
   domain_name = var.domain_name
 }
 
 
 module "acm" {
-  source = "./modules/blog/acm.tf"
-  domain = var.domain_name
+  source = "./modules/blog/acm"
+  domain_name = var.domain_name
 }
 
 module "cloudfront" {
-  source = "./modules/blog/cloudfront.tf"
-  domain = var.domain_name
+  source = "./modules/blog/cloudfront"
+  domain_name = var.domain_name
 }
 
 module "route53" {
-  source = "./modules/blog/route53.tf"
-  domain = var.domain_name
-  cloudfront_domain_name = module.cloudfront.cloudfront_domain_name
-  cloudfront_hosted_zone_id = module.cloudfront.cloul
+  source = "./modules/blog/route53"
+  domain_name = var.domain_name
 
 }
 
 module "s3_policy" {
-  source = "./modules/blog/s3-policy.tf"
-  domain = var.domain_name
-  origin_access_control_arn = module.origin_access.origin_access_control_id
+  source = "./modules/blog/s3_policy"
 }
