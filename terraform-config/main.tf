@@ -15,6 +15,27 @@ provider "aws" {
 
 module "s3_bucket" {
   source = "./modules/blog/s3.tf"
+  bucket = var.domain_name
+  acl    = "private"
+
+  control_object_ownership = true
+  object_ownership         = "ObjectWriter"
+
+  versioning = {
+    enabled = true
+  } 
+
+    index_document {
+    suffix = "index.html"
+  }
+
+  error_document {
+    key = "error.html"
+  }
+
+  tags = {
+    Name = "My blog bucket"
+  }
 }
 
 module "ACM" {
