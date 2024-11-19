@@ -17,8 +17,8 @@ locals {
 
 resource "aws_cloudfront_distribution" "my_distribution" {
   origin {
-    domain_name              = aws_s3_bucket.blog.bucket_regional_domain_name
-    origin_access_control_id = aws_cloudfront_origin_access_control.default.id
+    domain_name              = "${var.bucket_name}.s3.amazonaws.com"
+    origin_access_control_id = var.origin_access_control_id
     origin_id                = local.s3_origin_id
   }
 
@@ -113,8 +113,17 @@ resource "aws_cloudfront_distribution" "my_distribution" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate.cert.arn
+    acm_certificate_arn = var.acm_certificate_arn
     ssl_support_method = "sni-only"
     minimum_protocol_version = "TLS1.2_2021"
   }
+}
+
+// connect to route53 
+output "distribution_domain_name" {
+  value = aws_cloudfront_distribution.my_distribution.domain_name
+}
+
+output "distribution_hosted_zone_id" {
+  value = aws_cloudfront_distribution.my_distribution.hosted_zone_id
 }

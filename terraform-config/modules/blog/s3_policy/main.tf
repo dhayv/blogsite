@@ -1,11 +1,19 @@
+variable "bucket_arn" {
+  type = string
+}
+
+variable "origin_access_identity_arn" {
+  type = string
+}
+
 data "aws_iam_policy_document" "s3_policy" {
   statement {
     actions   = ["s3:GetObject"]
-    resources = ["${aws_s3_bucket.blog}/*"]
+    resources = ["${var.bucket_arn}/*"]
 
     principals {
       type        = "AWS"
-      identifiers = [aws_cloudfront_origin_access_identity.default.iam_arn]
+      identifiers = [var.origin_access_identity_arn]
     }
   }
 }
