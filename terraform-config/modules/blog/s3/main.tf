@@ -8,21 +8,17 @@ resource "aws_s3_bucket" "blog" {
 
 }
 
-resource "aws_s3_bucket_website_configuration" "s3_bucket" {
-  bucket = aws_s3_bucket.blog.arn
-  
-}
 
 
-resource "aws_s3_bucket_acl" "s3_bucket" {
-  bucket = aws_s3_bucket.blog.acl
+resource "aws_s3_bucket_acl" "acl" {
+  bucket = aws_s3_bucket.blog.id
   
   acl = "private"
   
 }
 
-resource "aws_s3_bucket_versioning" "s3_bucket" {
-  bucket = aws_s3_bucket.blog.arn
+resource "aws_s3_bucket_versioning" "versioning" {
+  bucket = aws_s3_bucket.blog.id
   versioning_configuration {
     status = "Enabled"
   }
@@ -32,13 +28,35 @@ locals {
     s3_origin_id = "myS3Origin"
 }
 
-resource "aws_s3_object" "build" {
-  for_each = fileset("../my-app/app/", "**")
-  bucket = aws_s3_bucket.blog
-  key = each.value
-  source = "../my-app/app/${each.value}"
-  etag = filemd5("../my-app/app/${each.value}")
-  acl    = "private"
-content_type = lookup(local.mime_types, regex("\\.[^.]+$", each.key), null)
+data "aws_caller_identity" "current" {}
+
+locals {
+  oac_arn = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:origin-access-control/${var.origin_access_control_id}"
 }
 
+resource "aws_s3_bucket_policy" "policy" {
+  bucket = aws_s3_bucket.blog.id
+  policy = data.aws_iam_policy_document.bucket_policy.json
+}
+
+data "aws_iam_policy_document" "bucket_policy" {
+  statement {
+    sid    = "AllowCloudFrontServicePrincipalReadOnly"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+
+    actions = ["s3:GetObject"]
+
+    resources = ["${aws_s3_bucket.blog.arn}/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [local.oac_arn]
+    }
+  }
+}
