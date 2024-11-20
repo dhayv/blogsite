@@ -10,3 +10,8 @@ variable "environment" {
 variable "aws_region" {
   type = string
 }
+
+variable "zone_name" {
+  type = string
+}
+
