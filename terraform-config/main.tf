@@ -10,29 +10,32 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = var.aws_region
 }
 
-variable "domain_name" {
-  type = string
-  
+
+# Data source from route53 zone
+data "aws_route53_zone" "selected" {
+  name = var.zone_name
+  private_zone = false
 }
-
-module "s3_bucket" {
-  source = "./modules/blog/s3"
-  domain_name = var.domain_name
-
-} 
 
 module "origin_access" {
   source = "./modules/blog/originaccess"
   domain_name = var.domain_name
 }
 
+module "s3_bucket" {
+  source = "./modules/blog/s3"
+  domain_name = var.domain_name
+  origin_access_control_id = module.origin_access.origin_access_control_id
+} 
+
 
 module "acm" {
   source = "./modules/blog/acm"
   domain_name = var.domain_name
+  zone_id = data.aws_route53_zone.selected.zone_id
 }
 
 module "cloudfront" {
@@ -46,14 +49,13 @@ module "cloudfront" {
 module "route53" {
   source = "./modules/blog/route53"
   domain_name = var.domain_name
-  cloudfront_distribution_domain_name = module.cloudfront.my_distribution
-  cloudfront_distribution_hosted_zone_id = module.cloudfront.dis
+  cloudfront_distribution_domain_name = module.cloudfront.distribution_domain_name
+  cloudfront_distribution_hosted_zone_id = module.cloudfront.distribution_hosted_zone_id
   zone_id = data.aws_route53_zone.selected.zone_id
 
 }
 
-module "s3_policy" {
-  source = "./modules/blog/s3_policy"
-  origin_access_identity_arn = module.origin_access.origin_access_identity_arn
-  bucket_arn = module.s3_bucket.bucket_arn
+
+output "s3_bucket_name" {
+  value = module.s3_bucket.bucket_name
 }
