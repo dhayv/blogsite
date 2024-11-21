@@ -30,7 +30,7 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Terraform Cache
-        uses: terraform-cache/terraform-cache@v1.0.0
+        uses: actions/cache@v4.1.2
         with: 
           path: |
             **/.terraform
@@ -50,6 +50,8 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2.0.3
+        with:
+          terraform_version: "latest"
 
       - name: Terraform Init
         run: |
@@ -59,7 +61,7 @@ jobs:
       - name: Terraform 
         run: |
           cd ./terraform-config
-          Terraform plan -out=tfplan
+          terraform plan -out=tfplan
 
       - name: Terraform Apply
         run: |
