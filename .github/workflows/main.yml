@@ -22,7 +22,7 @@ jobs:
           role-session-name: GitHubActionsSession
           aws-region: ${{ secrets.AWS_REGION }}
           
-      - name: cache
+      - name: Cache
         uses: actions/cache@4.1.2
         with: 
           path: |
@@ -30,7 +30,7 @@ jobs:
           key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Terraform Cache
-        uses: actions/cache@4.1.2
+        uses: terraform-cache/terraform-cache@v1.0.0
         with: 
           path: |
             **/.terraform
