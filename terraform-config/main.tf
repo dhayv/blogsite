@@ -11,14 +11,10 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
+  profile = "terraform-role"
 }
 
 
-# Data source from route53 zone
-data "aws_route53_zone" "selected" {
-  name = var.zone_name
-  private_zone = false
-}
 
 module "origin_access" {
   source = "./modules/blog/originaccess"
@@ -28,14 +24,14 @@ module "origin_access" {
 module "s3_bucket" {
   source = "./modules/blog/s3"
   domain_name = var.domain_name
-  origin_access_control_id = module.origin_access.origin_access_control_id
+  distribution_arn = module.cloudfront.distribution_arn
 } 
 
 
 module "acm" {
   source = "./modules/blog/acm"
   domain_name = var.domain_name
-  zone_id = data.aws_route53_zone.selected.zone_id
+  zone_id = var.zone_id
 }
 
 module "cloudfront" {
@@ -51,11 +47,22 @@ module "route53" {
   domain_name = var.domain_name
   cloudfront_distribution_domain_name = module.cloudfront.distribution_domain_name
   cloudfront_distribution_hosted_zone_id = module.cloudfront.distribution_hosted_zone_id
-  zone_id = data.aws_route53_zone.selected.zone_id
+  zone_id = var.zone_id
 
+}
+
+
+terraform {
+  backend "s3" {
+    bucket         = "my-terraform-blog-state-bucket"
+    key            = "blogsite/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+  }
 }
 
 
 output "s3_bucket_name" {
   value = module.s3_bucket.bucket_name
 }
+
