@@ -10,13 +10,6 @@ resource "aws_s3_bucket" "blog" {
 
 
 
-resource "aws_s3_bucket_acl" "acl" {
-  bucket = aws_s3_bucket.blog.id
-  
-  acl = "private"
-  
-}
-
 resource "aws_s3_bucket_versioning" "versioning" {
   bucket = aws_s3_bucket.blog.id
   versioning_configuration {
@@ -29,10 +22,6 @@ locals {
 }
 
 data "aws_caller_identity" "current" {}
-
-locals {
-  oac_arn = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:origin-access-control/${var.origin_access_control_id}"
-}
 
 resource "aws_s3_bucket_policy" "policy" {
   bucket = aws_s3_bucket.blog.id
@@ -55,8 +44,8 @@ data "aws_iam_policy_document" "bucket_policy" {
 
     condition {
       test     = "StringEquals"
-      variable = "AWS:SourceArn"
-      values   = [local.oac_arn]
+      variable = "aws:SourceArn"
+      values   = [var.distribution_arn]
     }
   }
 }
