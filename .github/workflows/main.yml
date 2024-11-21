@@ -1,10 +1,7 @@
 name: Deploy
 
 on: 
-  workflow_dispatch: # Allows manual triggers.
-  push:
-    branches:
-      - main # Runs on pushes to main branch.
+  workflow_dispatch: 
 
 jobs:
   deploy:
