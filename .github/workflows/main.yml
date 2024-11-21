@@ -21,7 +21,23 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: GitHubActionsSession
           aws-region: ${{ secrets.AWS_REGION }}
-  
+          
+      - name: cache
+        uses: actions/cache@4.1.2
+        with: 
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Terraform Cache
+        uses: actions/cache@4.1.2
+        with: 
+          path: |
+            **/.terraform
+            *.tfstate
+          key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
+          
+          
       - name: Install Dependencies
         run: |
           cd ./my-app
@@ -33,16 +49,25 @@ jobs:
           npm run build
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v2.0.3
 
       - name: Terraform Init
-        run: terraform init
+        run: |
+          cd ./terraform-config
+          terraform init
+
+      - name: Terraform 
+        run: |
+          cd ./terraform-config
+          Terraform plan -out=tfplan
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: |
+          cd ./terraform-config
+          terraform apply-auto-approve tfplan 
 
       - name: Upload to s3
-        run: aws s3 sync ./my-app/out s3://${{ steps.terraform.outputs.s3_bucket_name.outputs.value }} --delete
+        run: aws s3 sync ./my-app/out s3://${{ steps.terraform.outputs.s3_bucket_name.value }} --delete
 
       - name: Invalidate CloudFront Cache
         run: |
