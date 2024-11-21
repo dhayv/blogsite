@@ -23,7 +23,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           
       - name: Cache
-        uses: actions/cache@4.1.2
+        uses: actions/cache@4
         with: 
           path: |
             **/node_modules
