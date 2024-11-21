@@ -1,6 +1,3 @@
-import Link from "next/link";
-import Header from "./header";
-
 const Home = (): JSX.Element => {
 
   return (
