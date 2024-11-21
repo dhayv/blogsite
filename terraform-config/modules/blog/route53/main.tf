@@ -1,4 +1,4 @@
-resource "aws_route53_record" "aliad" {
+resource "aws_route53_record" "alias" {
   zone_id = var.zone_id
   name    = var.domain_name
   type    = "A"
