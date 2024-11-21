@@ -11,7 +11,7 @@ variable "aws_region" {
   type = string
 }
 
-variable "zone_name" {
+variable "zone_id" {
   type = string
 }
 
