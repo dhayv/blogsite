@@ -30,7 +30,7 @@ jobs:
       - name: Build Next.js App
         run: |
           cd ./my-app
-          npm run build && npm run export
+          npm run build
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
