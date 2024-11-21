@@ -4,6 +4,6 @@ variable "domain_name" {
 }
 
 
-variable "origin_access_control_id" {
+variable "distribution_arn" {
   type = string
 }
