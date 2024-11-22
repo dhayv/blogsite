@@ -19,3 +19,23 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.grid-areas-layout {
+  grid-template-areas:
+    "header"
+    "main"
+    "recentpost"
+    "footer";
+}
+.grid-in-header {
+  grid-area: header;
+}
+.grid-in-main {
+  grid-area: main;
+}
+.grid-in-recentpost {
+  grid-area: recentpost;
+}
+.grid-in-footer {
+  grid-area: footer;
+}
