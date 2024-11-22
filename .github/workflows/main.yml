@@ -28,14 +28,6 @@ jobs:
           path: |
             **/node_modules
           key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
-
-      - name: Terraform Cache
-        uses: actions/cache@v4.1.2
-        with: 
-          path: |
-            **/.terraform
-          key: ${{ runner.os }}-terraform-${{ hashFiles('**/*.tf') }}
-          
           
       - name: Install Dependencies
         run: |
@@ -60,20 +52,23 @@ jobs:
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
           TF_VAR_aws_region: ${{ secrets.AWS_REGION}}
           TF_VAR_zone_id: ${{ secrets.ZONE_ID }}
-          TF_VAR_aws_profile: ${{ secrets.AWS_ROLE_ARN}}
 
-      - name: Terraform 
+      - name: Terraform
+        id: plan
         run: |
           cd ./terraform-config
           terraform plan -out=tfplan
 
       - name: Terraform Apply
+        id: apply
         run: |
           cd ./terraform-config
           terraform apply auto-approve tfplan 
 
       - name: Upload to s3
-        run: aws s3 sync ./my-app/out s3://${{ steps.terraform.outputs.s3_bucket_name.value }} --delete
+        run: |
+          S3_BUCKET_NAME=$(terraform -chdir=./terraform-config output -raw s3_bucket_name)
+          aws s3 sync ./my-app/out s3://$S3_BUCKET_NAME --delete
 
       - name: Invalidate CloudFront Cache
         run: |
