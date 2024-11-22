@@ -11,7 +11,7 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
-  profile = "terraform-role"
+  profile = var.aws_profile
 }
 
 
