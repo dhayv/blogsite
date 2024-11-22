@@ -74,9 +74,7 @@ jobs:
           TF_VAR_zone_id: ${{ secrets.ZONE_ID }}
 
       - name: Upload to s3
-        run: |
-          S3_BUCKET_NAME=$(terraform -chdir=./terraform-config output -raw s3_bucket_name)
-          aws s3 sync ./my-app/out s3://$S3_BUCKET_NAME --delete
+        run: aws s3 sync ./my-app/out s3://${{ secrets.S3_BUCKET_NAME }} --delete
 
       - name: Invalidate CloudFront Cache
         run: |
