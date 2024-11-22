@@ -1,16 +1,18 @@
 import Image from 'next/image';
 import Link from 'next/link';
 // use icon8 for svg's
-const Header = (): JSX.Element => {
+
+
+const Header: React.FC = () => {
   return (
     <nav className="flex flex-wrap justify-center space-x-6 ">
       
       <div className='flex items-center space-x-6'>
 
-      <Link href=''>Home</Link>
+      <Link href='/'>Home</Link>
       
       
-      <Link href=''>Blog</Link>
+      <Link href='/recentpost.tsx'>Blog</Link>
       </div>
       
      <div className='flex items-center space-x-6'>
