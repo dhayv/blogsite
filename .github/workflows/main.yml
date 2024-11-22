@@ -67,7 +67,7 @@ jobs:
         id: apply
         run: |
           cd ./terraform-config
-          terraform apply auto-approve tfplan 
+          terraform apply -auto-approve tfplan 
         env:
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
           TF_VAR_aws_region: ${{ secrets.AWS_REGION}}
