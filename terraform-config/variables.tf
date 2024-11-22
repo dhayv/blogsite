@@ -13,4 +13,5 @@ variable "zone_id" {
 
 variable "aws_profile" {
   type = string
+  default = ""
 }
