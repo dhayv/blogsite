@@ -6,11 +6,12 @@ const Home: React.FC = () => {
     <div className=" max-w-xl mx-auto w-full">
       
       <main className="flex flex-col gap-4 row-start-2 items-center sm:items-start">
-        <h1>Welcome to my Blog</h1>
+        <h1>Welcome to My Corner of the Internet</h1>
         
-        <p>My Name is David Hyppolite a self-taught Cloud Engineer. On this blog I will sharing and Documenting my Journey and thoughts and technologies I am using. This entire blog's architecture is built using Terraform, AWS
-        (S3, CloudFront, Route53, ACM), GitHub Actions for CI/CD, and Next.js.</p>
-        <RecentPost />
+        <p>I'm David Hyppolite a self-taught Cloud Engineer driven by an unrelenting pursuit of excellence. This blog isn't just another tech space - it's where determination meets cloud innovation.</p>
+        <p>What you're looking at right now? It's infrastructure-as-code poetry, orchestrated through Terraform, powered by AWS (S3, CloudFront, Route53, ACM), automated through GitHub Actions, and brought to life with Next.js. Every component represents another challenge conquered, another level mastered.</p>
+        <p>Here, I'll document my journey, share my victories (and battles) with cloud technologies, and demonstrate how pure determination can transform ambitious goals into reality.</p>
+       { /*<RecentPost />*/}
       </main>
     </div>
   )

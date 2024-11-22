@@ -14,9 +14,10 @@ const RecentPost: React.FC = () => {
     ))
 
     return (
-        <div>
-            <h1>Under Construction still</h1>
-            <ul>{listPost}</ul>
+        <div className="space-y-3 ">
+            <h1 className="underline underline-offset-1">Recent Posts</h1>
+            <ul className="space-y-4">{listPost}</ul>
+            
         </div>
         
     )
