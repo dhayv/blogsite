@@ -9,10 +9,10 @@ const Header: React.FC = () => {
       
       <div className='flex items-center space-x-6'>
 
-      <Link href='/'>Home</Link>
+      <Link href='/' className="hover:underline">Home</Link>
       
       
-      <Link href='/recentpost.tsx'>Blog</Link>
+      <Link href='/recentpost' className="hover:underline" passHref>Blog</Link>
       </div>
       
      <div className='flex items-center space-x-6'>
@@ -20,25 +20,30 @@ const Header: React.FC = () => {
         href="https://github.com/dhayv"
         target="_blank"
         rel="noopener noreferrer"
+        title='GitHub Profile'
+        className="hover:opacity-75"
       >
         <Image
           src="/github-mark.svg"
           alt="File icon"
-          width={25}
-          height={25}
+          width={16}
+          height={16}
+          
         />
       </a>
       <a
         href="https://www.linkedin.com/in/david-hyppolite-60560b61/"
         target="_blank"
         rel="noopener noreferrer"
+        title='LinkedIn Profile'
+        className="hover:opacity-75"
       >
         
         <Image
           src="/icons8-linkedin (1).svg"
           alt="Window icon"
-          width={25}
-          height={25}
+          width={16}
+          height={16}
         />
       </a>
      </div>
