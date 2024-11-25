@@ -4,8 +4,21 @@ import matter from "gray-matter";
 import { remark } from "remark";
 import html from "remark-html";
 
+interface Post {
+  slug: string;
+  title: string;
+  date: string;
+  excerpt?: string; 
+  content?: string;
+}
+
+interface PageProps {
+  params: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+}
+
+// Generate static paths for all blog posts
 export async function generateStaticParams() {
-  // Generate paths for all posts
   const files = fs.readdirSync(path.join("posts"));
 
   return files.map((filename) => ({
@@ -13,10 +26,31 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function PostPage({ params }:  { params: { slug: string } }) {
+// Fetch the content of a specific blog post
+async function getPost(slug: string): Promise<Post> {
+  const filePath = path.join("posts", `${slug}.md`);
 
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`Post not found: ${slug}`);
+  }
+
+
+  const markdownWithMeta = fs.readFileSync(filePath, "utf-8");
+  const { data, content } = matter(markdownWithMeta);
+  const processedContent = await remark().use(html).process(content);
+
+  return {
+    slug,
+    title: data.title,
+    date: data.date,
+    content: processedContent.toString(),
+  };
+}
+
+// The main page component for a blog post
+export default async function PostPage({ params }: PageProps) {
   const { slug } = params;
-  const post = await getPost(slug);
+  const post = await getPost(params.slug);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -24,22 +58,8 @@ export default async function PostPage({ params }:  { params: { slug: string } }
       <p className="text-gray-500">{post.date}</p>
       <div
         className="prose mx-auto"
-        dangerouslySetInnerHTML={{ __html: post.content }}
+        dangerouslySetInnerHTML={{ __html: post.content || "<p>No content available.</p>" }}
       />
     </div>
   );
-}
-
-
-function getPost(slug: string) {
-  const filePath = path.join("posts", `${slug}.md`);
-  const markdownWithMeta = fs.readFileSync(filePath, "utf-8");
-  const { data, content } = matter(markdownWithMeta);
-  const processedContent = remark().use(html).processSync(content);
-
-  return {
-    title: data.title,
-    date: data.date,
-    content: processedContent.toString(),
-  };
 }
