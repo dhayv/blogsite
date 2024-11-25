@@ -4,6 +4,8 @@ import path from 'path';
 import matter from 'gray-matter';
 import { remark } from 'remark';
 import html from 'remark-html';
+import exp from 'constants';
+import { title } from 'process';
 
 interface PostProps {
   content: string;
@@ -13,40 +15,39 @@ interface PostProps {
   };
 }
 
-const PostPage: React.FC<PostProps> = ({ content, metadata }) => {
+export async function generateStaticParams() {
+    const files = fs.readdirSync(path.join("posts"));
+    return files.map((filename => ({
+        slug: filename.replace(".md", "")
+    })))
+}
+
+export default async function PostPage({ params }: { params: { slug: string } }) {
+    
+
   return (
-    <div>
-      <h1>{metadata.title}</h1>
-      <p>{metadata.date}</p>
-      <div dangerouslySetInnerHTML={{ __html: content }} />
+    <div className="">
+        <h1></h1>
+        
+        <p></p>
+        <div></div>
+    
+        
+        
     </div>
-  );
-};
+  )
+  
+}
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const files = fs.readdirSync(path.join('posts'));
+function getPost(slug: string) {
+    const filepath = path.join("content", `${slug}.md`)
+    const markdownWithMeta = fs.readFileSync(filepath, 'utf-8');
+    const {data, content} = matter(markdownWithMeta)
+    const processedContent =remark().use(html).processSync(content)
+    return {
+        title: data.title,
+        date: data.date,
+        content: processedContent.toString()
+    }
+}
 
-  const paths = files.map((filename) => ({
-    params: { slug: filename.replace('.md', '') },
-  }));
-
-  return { paths, fallback: false };
-};
-
-export const getStaticProps: GetStaticProps = async ({ params }) => {
-  const slug = params?.slug as string;
-  const markdownWithMeta = fs.readFileSync(path.join('posts', slug + '.md'), 'utf-8');
-
-  const { data, content } = matter(markdownWithMeta);
-  const processedContent = await remark().use(html).process(content);
-  const contentHtml = processedContent.toString();
-
-  return {
-    props: {
-      metadata: data,
-      content: contentHtml,
-    },
-  };
-};
-
-export default PostPage;
