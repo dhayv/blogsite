@@ -13,8 +13,8 @@ interface Post {
 }
 
 interface PageProps {
-  params: { slug: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 // Generate static paths for all blog posts
@@ -48,7 +48,8 @@ async function getPost(slug: string): Promise<Post> {
 }
 
 // The main page component for a blog post
-export default async function PostPage({ params }: PageProps) {
+export default async function PostPage(props: PageProps) {
+  const params = await props.params;
   const { slug } = params;
   const post = await getPost(params.slug);
 
