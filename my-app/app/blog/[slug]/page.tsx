@@ -1,53 +1,45 @@
-import { GetStaticPaths, GetStaticProps } from 'next';
-import fs from 'fs';
-import path from 'path';
-import matter from 'gray-matter';
-import { remark } from 'remark';
-import html from 'remark-html';
-import exp from 'constants';
-import { title } from 'process';
-
-interface PostProps {
-  content: string;
-  metadata: {
-    title: string;
-    date: string;
-  };
-}
+import fs from "fs";
+import path from "path";
+import matter from "gray-matter";
+import { remark } from "remark";
+import html from "remark-html";
 
 export async function generateStaticParams() {
-    const files = fs.readdirSync(path.join("posts"));
-    return files.map((filename => ({
-        slug: filename.replace(".md", "")
-    })))
+  // Generate paths for all posts
+  const files = fs.readdirSync(path.join("posts"));
+
+  return files.map((filename) => ({
+    slug: filename.replace(".md", ""),
+  }));
 }
 
-export default async function PostPage({ params }: { params: { slug: string } }) {
-    
+export default async function PostPage({ params }:  { params: { slug: string } }) {
+
+  const { slug } = params;
+  const post = await getPost(slug);
 
   return (
-    <div className="">
-        <h1></h1>
-        
-        <p></p>
-        <div></div>
-    
-        
-        
+    <div className="max-w-2xl mx-auto space-y-6">
+      <h1 className="text-3xl font-bold">{post.title}</h1>
+      <p className="text-gray-500">{post.date}</p>
+      <div
+        className="prose mx-auto"
+        dangerouslySetInnerHTML={{ __html: post.content }}
+      />
     </div>
-  )
-  
+  );
 }
+
 
 function getPost(slug: string) {
-    const filepath = path.join("content", `${slug}.md`)
-    const markdownWithMeta = fs.readFileSync(filepath, 'utf-8');
-    const {data, content} = matter(markdownWithMeta)
-    const processedContent =remark().use(html).processSync(content)
-    return {
-        title: data.title,
-        date: data.date,
-        content: processedContent.toString()
-    }
-}
+  const filePath = path.join("posts", `${slug}.md`);
+  const markdownWithMeta = fs.readFileSync(filePath, "utf-8");
+  const { data, content } = matter(markdownWithMeta);
+  const processedContent = remark().use(html).processSync(content);
 
+  return {
+    title: data.title,
+    date: data.date,
+    content: processedContent.toString(),
+  };
+}
