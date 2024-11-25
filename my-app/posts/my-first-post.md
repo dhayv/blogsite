@@ -92,6 +92,7 @@ export AWS_DEFAULT_REGION="us-east-1"
 # Profile
 export AWS_PROFILE=default
 ```
+
 But this created conflicts when trying to switch between accounts. The real issue? The Terraform role lacked cross-account access permissions.
 
 ### 3. Cross-Account Resource Management
