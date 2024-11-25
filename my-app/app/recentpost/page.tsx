@@ -1,14 +1,17 @@
 import React from "react";
 import Link from "next/link";
+import { Post } from "../types/post";
+import path from "path";
+import fs from 'fs'
+import matter from "gray-matter";
 
 const RecentPost: React.FC = () => {
-    
-    const posts = [
-        { id: 1, slug: "post-one", title: 'Post One', excerpt: 'This is the first post.' },
-        { id: 2, slug: "post-two", title: 'Post Two', excerpt: 'This is the second post.' },
-    ]
-    const listPost = posts.map((post) => (
-        <li key={post.id} className="space-y-2">
+    const posts = getAllPosts()
+
+    posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    const listPost = posts.slice(0,3).map((post) => (
+        <li key={post.slug} className="space-y-2">
           <h3 className="text-lg font-semibold">{post.title}</h3>
           <p className="text-gray-600">{post.excerpt}</p>
           <Link href={`/blog/${post.slug}`} className="text-blue-500 hover:underline">
@@ -24,6 +27,23 @@ const RecentPost: React.FC = () => {
     </div>
         
     )
+}
+
+function getAllPosts(): Post[] {
+  const files = fs.readdirSync(path.join("posts"));
+
+  return files.map((filename) => {
+    const slug = filename.replace(".md", "");
+    const markdownWithMeta = fs.readFileSync(path.join("posts", filename), "utf-8");
+    const { data } = matter(markdownWithMeta);
+
+    return {
+      slug,
+      title: data.title,
+      date: data.date, // Ensure dates are valid strings in the markdown front matter
+      excerpt: data.excerpt || "No excerpt available.",
+    };
+  });
 }
 
 export default RecentPost;
