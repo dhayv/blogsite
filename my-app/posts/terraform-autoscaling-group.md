@@ -4,6 +4,7 @@ date: "12-6-2024"
 author: David Hyppolite
 excerpt: "Creating a AWS auto-scaling infrastructure—from tackling security challenges to resolving real-world deployment issues. Learn how to build, debug, and monitor a fault-tolerant system that scales intelligently."
 ---
+
 ## Overview
 
 I designed and implemented a highly available, fault-tolerant auto-scaling infrastructure using Terraform. The architecture spans three Availability Zones and includes both public and private subnets, demonstrating real-world security and scalability practices.
