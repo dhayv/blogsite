@@ -836,6 +836,8 @@ When attempting to access the Application Load Balancer's DNS name, I encountere
 
 After confirming that the EC2 instances were running in their designated private subnets, I discovered that while the instances were operational, the ALB target group showed all targets as unhealthy. This suggested a deeper application-level issue rather than an infrastructure problem. A thorough review of security group configurations and the launch template confirmed that the basic networking and instance setup were correct.
 
+![Alt](../unhealthy.png)
+
 #### The Private Subnet Challenge
 
 The architecture's security-first design presented an interesting troubleshooting challenge. With EC2 instances deliberately placed in private subnets and no public IP addresses or SSH access configured, traditional debugging approaches weren't viable. The solution required:
@@ -945,7 +947,8 @@ From there I ran the command `sudo systemctl status nginx` that showed me that n
 
 #### Resolution and Lessons Learned
 
-![Alt](../hello-screenshot.png)
+![Alt](../zone1a.png)
+![Alt](../zone1b.png)
 
 This troubleshooting experience reinforced several crucial aspects of AWS infrastructure management:
 
