@@ -35,6 +35,11 @@ resource "aws_cloudfront_distribution" "my_distribution" {
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
     target_origin_id = local.s3_origin_id
 
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.rewrite.arn
+    }
+
     forwarded_values {
       query_string = false
       cookies {
@@ -62,4 +67,22 @@ resource "aws_cloudfront_distribution" "my_distribution" {
     ssl_support_method = "sni-only"
     minimum_protocol_version = "TLSv1.2_2021"
   }
+}
+
+resource "aws_cloudfront_function" "rewrite" {
+  name    = "rewrite"
+  runtime = "cloudfront-js-1.0"
+  code    = <<-EOF
+function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+    
+    // Handle blog posts
+    if (uri.startsWith('/blog/')) {
+        request.uri = '/index.html';
+    }
+    
+    return request;
+}
+EOF
 }
