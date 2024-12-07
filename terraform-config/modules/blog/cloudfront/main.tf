@@ -17,18 +17,28 @@ resource "aws_cloudfront_distribution" "my_distribution" {
 
   aliases = [var.domain_name, "www.${var.domain_name}"]
 
+  custom_error_response {
+    error_code = 403
+    response_code = 200
+    response_page_path = "/index.html"
+    error_caching_min_ttl = 0
+  }
+
+  custom_error_response {
+    error_code = 404
+    response_code = 200
+    response_page_path = "/index.html"
+    error_caching_min_ttl = 0
+  }
+
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
     target_origin_id = local.s3_origin_id
 
-    function_association {
-      event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.rewrite_blog_paths.arn
-    }
     forwarded_values {
       query_string = false
-
+      
       cookies {
         forward = "none"
       }
@@ -59,21 +69,3 @@ resource "aws_cloudfront_distribution" "my_distribution" {
   }
 }
 
-resource "aws_cloudfront_function" "rewrite_blog_paths" {
-  name    = "rewrite-blog-paths"
-  runtime = "cloudfront-js-1.0"
-
-  code = <<EOF
-function handler(event) {
-    var request = event.request;
-    var uri = request.uri;
-
-    // Check if the request is for a blog post without a trailing slash
-    if (uri.startsWith("/blog/") && !uri.endsWith("/")) {
-        request.uri = uri + "/index.html";
-    }
-
-    return request;
-}
-EOF
-}
