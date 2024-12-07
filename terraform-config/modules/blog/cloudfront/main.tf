@@ -16,20 +16,6 @@ resource "aws_cloudfront_distribution" "my_distribution" {
   
   aliases = [var.domain_name, "www.${var.domain_name}"]
 
-  custom_error_response {
-    error_code = 403
-    response_code = 200
-    response_page_path = "/index.html"
-    error_caching_min_ttl = 0
-  }
-
-  custom_error_response {
-    error_code = 404
-    response_code = 200
-    response_page_path = "/index.html"
-    error_caching_min_ttl = 0
-  }
-
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
