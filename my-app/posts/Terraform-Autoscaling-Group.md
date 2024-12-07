@@ -84,7 +84,7 @@ Our implementation follows this systematic approach:
 4. Repeat until completion
 5. Apply final configuration
 
-**Module Validation**
+#### Module Validation**
 
 ```bash
 # Initialize Terraform working directory
@@ -158,6 +158,7 @@ module "monitoring" {
 ```
 
 **Key Features:**
+
 1. **Modular Design**
 
 - Each component is a separate module
@@ -721,6 +722,7 @@ resource "aws_cloudwatch_metric_alarm" "low_cpu" {
 ```
 
 **Configuration Details:**
+
 1. **Scale-Out Alarm (High CPU)**
 
 - Triggers when CPU > 70%
