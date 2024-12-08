@@ -5,15 +5,6 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   images: {
     unoptimized: true,
-  },
-  exportPathMap: async function() {
-    return {
-      '/': { page: '/' },
-      '/blog': { page: '/blog' },
-      // Add explicit paths for your blog posts
-      '/blog/terraform-autoscaling-group': { page: '/blog/[slug]', query: { slug: 'terraform-autoscaling-group' } },
-      '/blog/building-a-blog-with-aws-terraform': { page: '/blog/[slug]', query: { slug: 'building-a-blog-with-aws-terraform' } }
-    }
   }
 };
 
