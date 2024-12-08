@@ -19,18 +19,27 @@ interface PageProps {
 
 // Generate static paths for all blog posts
 export async function generateStaticParams() {
-  const files = fs.readdirSync(path.join("posts"));
+  const files = fs.readdirSync(path.join(process.cwd(), "posts"));
 
-  return files.map((filename) => ({
-    slug: filename.replace(".md", ""),
-  }));
+  console.log("Generating paths for:", files);
+
+  return files.map((filename) => {
+    const slug = filename.replace(".md", "");
+    return {
+      slug: slug.toLowerCase()
+    }
+  });
 }
 
 // Fetch the content of a specific blog post
 async function getPost(slug: string): Promise<Post> {
+  const postDirectory = path.join(process.cwd(), "posts")
   const filePath = path.join("posts", `${slug}.md`);
 
+  console.log("Attempting to read:", filePath);
+
   if (!fs.existsSync(filePath)) {
+    console.error(`Post not found ${filePath}`)
     throw new Error(`Post not found: ${slug}`);
   }
 
@@ -40,7 +49,7 @@ async function getPost(slug: string): Promise<Post> {
   const processedContent = await remark().use(html).process(content);
 
   return {
-    slug,
+    slug: slug.toLowerCase(),
     title: data.title,
     date: data.date,
     content: processedContent.toString(),
