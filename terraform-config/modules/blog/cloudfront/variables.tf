@@ -13,3 +13,11 @@ variable "origin_access_control_id" {
 variable "bucket_name" {
   type = string
 }
+
+variable "s3_caching_policy" {
+  type = string
+}
+
+variable "s3_request_id" {
+  type = string
+}
