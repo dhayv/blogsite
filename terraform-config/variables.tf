@@ -17,14 +17,3 @@ variable "aws_profile" {
 }
 
 
-variable "s3_caching_policy" {
-  type = string
-}
-
-variable "s3_request_id" {
-  type = string
-}
-
-variable "header_policy" {
-  type = string
-}
