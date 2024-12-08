@@ -833,13 +833,13 @@ resource "aws_sns_topic_subscription" "email" {
 
 When attempting to access the Application Load Balancer's DNS name, I encountered a 502 Bad Gateway error, indicating a communication breakdown between the load balancer and the backend instances. This led me through a comprehensive troubleshooting process that demonstrates the complexity of debugging distributed systems.
 
-![Alt](../502-gateway.png)
+![Alt](/images/502-gateway.png)
 
 #### Initial Investigation
 
 After confirming that the EC2 instances were running in their designated private subnets, I discovered that while the instances were operational, the ALB target group showed all targets as unhealthy. This suggested a deeper application-level issue rather than an infrastructure problem. A thorough review of security group configurations and the launch template confirmed that the basic networking and instance setup were correct.
 
-![Alt](../unhealthy.png)
+![Alt](/images/unhealthy.png)
 
 #### The Private Subnet Challenge
 
@@ -895,7 +895,7 @@ Establishing secure instance access through the AWS console
 Go to VPC → Endpoints
 Click "Create Endpoint"
 
-![Alt](../vpc-1.png)
+![Alt](/images/vpc-1.png)
 
 **Under services**
 I added these 4 endpoints one by one:
@@ -905,7 +905,7 @@ I added these 4 endpoints one by one:
 - com.amazonaws.us-east-1.ec2
 - com.amazonaws.us-east-1.ec2messages
 
-![Alt](../vpc-2.png)
+![Alt](/images/vpc-2.png)
 
 I selected the VPC of the autoscaling group
 
@@ -914,7 +914,7 @@ Make sure **"Enable DNS name"** is left unchecked since we are working with priv
 **Under Subnets**
 I selected the 3 private subnets available for all 3 AZs. Make sure **"Designate Ip Addresses"** is left unchecked we are working with private subnets
 
-![Alt](../vpc-3.png)
+![Alt](/images/vpc-3.png)
 
 I gave the the policy Full Access since we are debugging
 
@@ -930,7 +930,7 @@ ping google.com
 
 This test confirmed the instance could reach the internet through the NAT Gateway in the public subnet, validating the network architecture was working as designed.
 
-![Alt](../ssm-1.png)
+![Alt](/images/ssm-1.png)
 
 Next, I verified I was on the correct instance by retrieving its metadata:
 
@@ -940,7 +940,7 @@ curl http://169.254.169.254/latest/meta-data/instance-id
 
 This step is crucial when working with auto-scaled instances to ensure I was troubleshooting the right target.
 
-![Alt](../ssm-2.png)
+![Alt](/images/ssm-2.png)
 
 From there I ran the command `sudo systemctl status nginx` that showed me that nginx wasn't installed on the instances. This explained the failed health checks - the web servers weren't present to respond to the ALB's requests. The resolution involved:
 
@@ -950,8 +950,8 @@ From there I ran the command `sudo systemctl status nginx` that showed me that n
 
 #### Resolution and Lessons Learned
 
-![Alt](../zone1a.png)
-![Alt](../zone1b.png)
+![Alt](/images/zone1a.png)
+![Alt](/images/zone1b.png)
 
 This troubleshooting experience reinforced several crucial aspects of AWS infrastructure management:
 
