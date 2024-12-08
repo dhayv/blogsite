@@ -24,7 +24,7 @@ const Header: React.FC = () => {
         className="hover:opacity-75"
       >
         <Image
-          src="/github-mark.svg"
+          src="/images/github-mark.svg"
           alt="File icon"
           width={16}
           height={16}
@@ -40,7 +40,7 @@ const Header: React.FC = () => {
       >
         
         <Image
-          src="/icons8-linkedin (1).svg"
+          src="/images/icons8-linkedin (1).svg"
           alt="Window icon"
           width={16}
           height={16}
