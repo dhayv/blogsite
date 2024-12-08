@@ -19,7 +19,7 @@ const BlogListing: React.FC = () => {
           <li key={post.slug} className="space-y-2">
             <h3 className="text-lg font-semibold">{post.title}</h3>
             <p className="text-gray-600">{post.excerpt}</p>
-            <Link href={`/blog/${post.slug}`} className="text-blue-500 hover:underline">
+            <Link href={`/blog/${post.slug.toLowerCase()}`} className="text-blue-500 hover:underline">
               Read More
             </Link>
           </li>
