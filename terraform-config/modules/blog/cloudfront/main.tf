@@ -2,6 +2,7 @@ locals {
   s3_origin_id = "myS3Origin"
 }
 
+
 resource "aws_cloudfront_distribution" "my_distribution" {
   origin {
     domain_name              = "${var.bucket_name}.s3.amazonaws.com"
@@ -22,17 +23,12 @@ resource "aws_cloudfront_distribution" "my_distribution" {
     cached_methods   = ["GET", "HEAD", "OPTIONS"]
     target_origin_id = local.s3_origin_id
 
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
+    cache_policy_id = var.s3_caching_policy
+    
+    origin_request_policy_id = var.s3_request_id
 
     viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
+    compress = true
   }
 
   price_class = "PriceClass_100"
@@ -50,3 +46,5 @@ resource "aws_cloudfront_distribution" "my_distribution" {
     minimum_protocol_version = "TLSv1.2_2021"
   }
 }
+
+
