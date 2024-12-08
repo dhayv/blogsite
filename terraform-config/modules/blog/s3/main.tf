@@ -30,7 +30,7 @@ resource "aws_s3_bucket_policy" "policy" {
 
 data "aws_iam_policy_document" "bucket_policy" {
   statement {
-    sid    = "AllowCloudFrontServicePrincipalReadOnly"
+    sid    = "AllowCloudFrontServicePrincipal"
     effect = "Allow"
 
     principals {
