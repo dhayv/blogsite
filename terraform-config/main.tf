@@ -42,6 +42,7 @@ module "cloudfront" {
   bucket_name = module.s3_bucket.bucket_name
   s3_request_id = var.s3_request_id
   s3_caching_policy = var.s3_caching_policy
+  header_policy = var.header_policy
 }
 
 module "route53" {

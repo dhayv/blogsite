@@ -21,3 +21,8 @@ variable "s3_caching_policy" {
 variable "s3_request_id" {
   type = string
 }
+
+
+variable "header_policy" {
+  
+}
