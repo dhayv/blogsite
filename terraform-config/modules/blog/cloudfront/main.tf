@@ -18,6 +18,19 @@ resource "aws_cloudfront_distribution" "my_distribution" {
   
   aliases = [var.domain_name, "www.${var.domain_name}"]
 
+  ordered_cache_behavior {
+    path_pattern = "/blog/*"
+    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = local.s3_origin_id
+
+    cache_policy_id = var.s3_caching_policy
+    origin_request_policy_id = var.s3_request_id
+    response_headers_policy_id = var.header_policy
+
+    viewer_protocol_policy = "redirect-to-https"
+    compress = true
+  }
   
   ordered_cache_behavior {
     path_pattern = "/_next/*"
