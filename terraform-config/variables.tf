@@ -15,3 +15,12 @@ variable "aws_profile" {
   type = string
   default = ""
 }
+
+
+variable "s3_caching_policy" {
+  type = string
+}
+
+variable "s3_request_id" {
+  type = string
+}
