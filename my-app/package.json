@@ -15,7 +15,8 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "remark": "^15.0.1",
-    "remark-html": "^16.0.1"
+    "remark-html": "^16.0.1",
+    "tailwindcss-fluid-type": "^2.0.7"
   },
   "devDependencies": {
     "@types/node": "^20",
