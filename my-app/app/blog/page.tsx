@@ -12,7 +12,7 @@ const BlogListing: React.FC = () => {
   posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
-    <div className="max-w-xl mx-auto space-y-6">
+    <div className="max-w-xl mx-auto w-full">
       <h1 className="text-xl font-bold underline underline-offset-2">All Posts</h1>
       <ul className="space-y-4">
         {posts.map((post) => (

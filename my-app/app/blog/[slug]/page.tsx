@@ -63,13 +63,14 @@ export default async function PostPage(props: PageProps) {
   const post = await getPost(params.slug);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <h1 className="text-3xl font-bold">{post.title}</h1>
-      <p className="text-gray-500">{post.date}</p>
-      <div
-        className="prose mx-auto"
-        dangerouslySetInnerHTML={{ __html: post.content || "<p>No content available.</p>" }}
-      />
-    </div>
+    <div className="mx-auto w-full max-w-sm ">
+  <h1 className="text-3xl font-bold">{post.title}</h1>
+  <p className="text-gray-500">{post.date}</p>
+  <div
+    className="prose"
+    dangerouslySetInnerHTML={{ __html: post.content || "<p>No content available.</p>" }}
+  />
+</div>
+
   );
 }
