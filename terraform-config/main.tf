@@ -40,6 +40,7 @@ module "cloudfront" {
   acm_certificate_arn = module.acm.certificate_arn
   origin_access_control_id = module.origin_access.origin_access_control_id
   bucket_name = module.s3_bucket.bucket_name
+  function_arn = var.function_arn
 }
 
 module "route53" {

@@ -16,4 +16,6 @@ variable "aws_profile" {
   default = ""
 }
 
-
+variable "function_arn" {
+  type = string
+}

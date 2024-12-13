@@ -30,6 +30,10 @@ resource "aws_cloudfront_distribution" "my_distribution" {
 
     viewer_protocol_policy = "redirect-to-https"
     compress = true
+    function_association {
+      event_type = "viewer-request"
+      function_arn = var.function_arn
+    }
   }
   
   ordered_cache_behavior {

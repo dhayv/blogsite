@@ -28,3 +28,7 @@ variable "header_policy" {
   type = string
   default = "5cc3b908-e619-4b99-88e5-2cf7f45965bd"
 }
+
+variable "function_arn" {
+  type = string
+}
