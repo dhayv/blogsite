@@ -269,3 +269,44 @@ Note: I changed my behavior path to "/blog*" - this ensures that both /blog and 
 Wait for your Distribution to redeploy, then invalidate your cache. Open your site in a new private window to test.
 
 This solution worked for my case. If it doesn't work for you, go through your set of logs to see what the errors/paths are and alter your function accordingly - that's what I did.
+
+## Key Learnings and Root Cause
+
+### Understanding URL Path Behavior
+
+- Static site generators like Next.js create HTML files for each route
+- S3 expects full file paths (e.g., `/about.html`) while users access clean URLs (e.g., `/about`)
+- CloudFront and S3 handle URL paths differently in production vs local development
+- The URL mismatch causes permission denied errors only on direct access or page refreshes
+
+### Key Technical Insights
+
+1. **Next.js Configuration Impact**:
+   - `trailingSlash` setting significantly affects URL structure
+   - Static export behavior needs special handling with CloudFront
+   - Default configurations might work locally but fail in production
+
+2. **Production Debugging Strategy**:
+   - Set up proper logging infrastructure first
+   - Use Lambda to process CloudFront logs effectively
+   - Monitor actual user access patterns
+   - Test both direct access and navigation scenarios
+
+3. **CloudFront Function Benefits**:
+   - Handles URL rewrites at the edge
+   - Provides clean URLs for users while maintaining proper S3 access
+   - Cost-effective solution for URL path manipulation
+   - Allows flexible routing rules based on your needs
+
+### Prevention Tips for Others
+
+- Start with `trailingSlash: false` in Next.js when using CloudFront
+- Set up comprehensive logging before deploying to production
+- Test all URL access patterns:
+  - Direct URL access
+  - Navigation through links
+  - Page refreshes
+  - Nested routes
+- Document your CloudFront function behavior for future reference
+
+Remember: What seems like a simple permission issue might actually be a complex interaction between your static site generator, CDN, and storage service. Always validate your assumptions with proper logging and testing in production.
