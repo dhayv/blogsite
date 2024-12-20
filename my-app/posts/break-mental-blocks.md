@@ -54,7 +54,7 @@ Remember, these strategies aren't just about taking breaks—they're about activ
    [Give your ideas some legs](https://news.stanford.edu/stories/2014/04/walking-vs-sitting-042414)
 
 2. "The Zeigarnik Effect: Why Unfinished Tasks Stick in Your Mind" - Psychology Today  
-   [The Zeigarnik Effect - Psychology Today ](https://www.psychologytoday.com/us/basics/zeigarnik-effect)
+   [The Zeigarnik Effect - Psychology Today](https://www.psychologytoday.com/us/basics/zeigarnik-effect)
 
 3. "Sleep to solve a problem" - Harvard Health Blog (2021)  
    [Sleep to solve a problem](https://www.health.harvard.edu/blog/sleep-to-solve-a-problem-202105242463)

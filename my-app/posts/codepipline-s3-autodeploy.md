@@ -6,21 +6,9 @@ excerpt: "Zero-touch process from Github to S3 using Codeipeline"
 ---
 A step-by-step implementation of automated deployments using AWS CodePipeline, S3 static website hosting, and GitHub integration. This project demonstrates CI/CD pipeline creation, IAM security configuration, and version-controlled deployments - replacing traditional FTP uploads with a zero-touch solution.
 
-## Quick Links
-
-- [Business Benefits](#business-benefits)
-- [The Problem](#the-problem)
-- [The Solution: AWS CodePipeline](#the-solution-aws-codepipeline)
-- [Implementation Guide](#implementation-guide)
-- [Making Changes and Verifying Deployment](#making-changes-and-verifying-deployment)
-
 ### Initial Architecture
 
-```bash
-GitHub Repository
-    └── CodePipeline
-        └── S3 Static Website
-```
+![Lucid Architecture](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/kl9tv1rb2vveav9xr0zt.png)
 
 ## Business Value
 
@@ -34,7 +22,9 @@ GitHub Repository
 
 ## The Problem
 
-A retail company is currently hosting their static website content on-premises. The marketing team updates the website content by manually uploading files via FTP. During holiday sales, the website experiences high traffic and occasional outages.
+Your retail company currently maintains its static website content on-premises, relying on manual FTP uploads for updates. This manual approach often results in incomplete or inconsistent deployments, making it difficult to maintain a reliable version history or roll back changes when issues arise. With holiday promotions driving sudden traffic spikes, the site frequently struggles under the burden of rushed, ad-hoc updates—leading to downtime, frustrated customers, and missed revenue opportunities.
+
+By introducing a fully automated CI/CD pipeline, you can eliminate the need for FTP uploads, ensure a consistent deployment history, and improve your site’s resiliency, especially during critical high-traffic periods.
 
 ### Common Issues with FTP Deployments
 
