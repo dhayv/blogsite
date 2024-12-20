@@ -8,7 +8,7 @@ A step-by-step implementation of automated deployments using AWS CodePipeline, S
 
 ### Initial Architecture
 
-![Lucid Architecture](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/kl9tv1rb2vveav9xr0zt.png)
+![Lucid Architecture](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/hhc8ojuzon5atmo5zuxb.png)
 
 ## Business Value
 
