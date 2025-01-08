@@ -1,6 +1,6 @@
 ---
 title: "Secure EC2 Access Without SSH Using AWS Systems Manager"
-date: "01-08-2024"
+date: "01-08-2025"
 author: David Hyppolite
 excerpt: "Learn how to eliminate the need for SSH keys and bastion hosts, enhance your security posture, and simplify instance management through IAM roles and robust logging mechanisms. "
 ---
