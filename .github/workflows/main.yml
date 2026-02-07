@@ -1,7 +1,7 @@
 name: Deploy
 
-on: 
-  workflow_dispatch: 
+on:
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -21,23 +21,25 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: GitHubActionsSession
           aws-region: ${{ secrets.AWS_REGION }}
-          
+
       - name: Cache
         uses: actions/cache@v4
-        with: 
+        with:
           path: |
             **/node_modules
           key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
-          
+
       - name: Install Dependencies
         run: |
           cd ./my-app
           npm install
 
-      - name: Build Next.js App
+      - name: Build Astro Site
         run: |
           cd ./my-app
           npm run build
+        env:
+          DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2.0.3
@@ -50,38 +52,34 @@ jobs:
           terraform init
         env:
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
-          TF_VAR_aws_region: ${{ secrets.AWS_REGION}}
+          TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
           TF_VAR_zone_id: ${{ secrets.ZONE_ID }}
-          TF_VAR_function_arn: ${{ secrets.FUNCTION_ARN }}
 
-      - name: Terraform
+      - name: Terraform Plan
         id: plan
         run: |
           cd ./terraform-config
           terraform plan -out=tfplan
         env:
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
-          TF_VAR_aws_region: ${{ secrets.AWS_REGION}}
+          TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
           TF_VAR_zone_id: ${{ secrets.ZONE_ID }}
-          TF_VAR_function_arn: ${{ secrets.FUNCTION_ARN }}
 
       - name: Terraform Apply
         id: apply
         run: |
           cd ./terraform-config
-          terraform apply -auto-approve tfplan 
+          terraform apply -auto-approve tfplan
         env:
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
-          TF_VAR_aws_region: ${{ secrets.AWS_REGION}}
+          TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
           TF_VAR_zone_id: ${{ secrets.ZONE_ID }}
-          TF_VAR_function_arn: ${{ secrets.FUNCTION_ARN }}
 
       - name: Upload to s3
-        run: aws s3 sync ./my-app/out s3://${{ secrets.S3_BUCKET_NAME }} --delete
+        run: aws s3 sync ./my-app/dist s3://${{ secrets.S3_BUCKET_NAME }} --delete
 
       - name: Invalidate CloudFront Cache
         run: |
           aws cloudfront create-invalidation \
           --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
           --paths "/*"
-

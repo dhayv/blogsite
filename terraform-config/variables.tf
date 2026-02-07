@@ -15,7 +15,3 @@ variable "aws_profile" {
   type = string
   default = ""
 }
-
-variable "function_arn" {
-  type = string
-}

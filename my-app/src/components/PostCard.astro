@@ -1,0 +1,50 @@
+---
+import TagBadge from './TagBadge.astro';
+import { getReadingTime } from '../utils/reading-time';
+
+interface Props {
+  title: string;
+  date: Date;
+  excerpt: string;
+  slug: string;
+  tags: string[];
+  body: string;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { title, date, excerpt, slug, tags, body, headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
+const readingTime = getReadingTime(body);
+
+const formattedDate = date.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<article class="group rounded-xl border border-gray-200 dark:border-gray-700/60 p-6 hover:border-blue-400/60 dark:hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/5 dark:hover:shadow-blue-500/10 transition-all duration-300">
+  <a href={`/blog/${slug}`} class="block">
+    <Heading class="text-xl font-semibold tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+      {title}
+    </Heading>
+  </a>
+
+  <div class="flex items-center gap-3 mt-3 text-sm text-gray-600 dark:text-gray-400">
+    <time datetime={date.toISOString()}>{formattedDate}</time>
+    <span>&middot;</span>
+    <span>{readingTime} min read</span>
+  </div>
+
+  {excerpt && (
+    <p class="mt-4 text-gray-600 dark:text-gray-300 text-[15px] leading-relaxed">
+      {excerpt}
+    </p>
+  )}
+
+  {tags.length > 0 && (
+    <ul class="flex flex-wrap gap-2 mt-4 list-none pl-0" aria-label="Tags">
+      {tags.map((tag) => <li><TagBadge tag={tag} /></li>)}
+    </ul>
+  )}
+</article>

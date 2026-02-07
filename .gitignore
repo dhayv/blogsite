@@ -9,6 +9,7 @@ terraform.tfstate.backup
 *.tfstate.*
 crash.log
 
-# Next.js
-/my-app/.next/
+# Astro
+/my-app/dist/
+/my-app/.astro/
 /my-app/node_modules/
