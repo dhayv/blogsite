@@ -1,16 +1,16 @@
 ---
-title: "From 502 to 200: Building a Auto-Scaling Infrastructure with Terraform"
+title: "How to Build an AWS Auto Scaling Group With Terraform"
 date: "12-6-2024"
 author: "David Hyppolite"
-excerpt: "Creating a AWS auto-scaling infrastructure—from tackling security challenges to resolving real-world deployment issues. Learn how to build, debug, and monitor a fault-tolerant system that scales intelligently."
+excerpt: "Step-by-step Terraform tutorial to create an AWS Auto Scaling Group with ALB, launch templates, and EC2 instances in private subnets. Includes fixing 502 errors."
 tags: ['aws', 'terraform', 'autoscaling', 'ec2', 'vpc', 'iam', 'monitoring', 'ssm', 'debugging']
 ---
 
-## Overview
+## Terraform Auto Scaling Group Architecture Overview
 
 I designed and implemented a highly available, fault-tolerant auto-scaling infrastructure using Terraform. The architecture spans three Availability Zones and includes both public and private subnets, demonstrating real-world security and scalability practices.
 
-### Real World Use Case
+### Why Use AWS Auto Scaling Groups in Production
 
 In today's dynamic digital landscape, applications need to adapt to changing demands while maintaining security and cost efficiency. This infrastructure addresses several critical business needs:
 
@@ -44,25 +44,25 @@ In today's dynamic digital landscape, applications need to adapt to changing dem
    - Restricts direct internet access
    - Implements defense-in-depth through ALB
 
-## Infrastructure Overview
+## AWS Auto Scaling Infrastructure With ALB and VPC
 
-### Auto Scaling Flow
+### How AWS Auto Scaling Triggers EC2 Instance Creation
 
-## Creating an AWS Auto Scaling Architecture
+## Creating the Auto Scaling Architecture With Terraform
 
 CPU Usage High (>70%) → Auto Scaling Group → Uses Launch Template → Creates New EC2 in Private Subnet
 
-### Traffic Flow
+### ALB to EC2 Traffic Flow in Private Subnets
 
     - Internet traffic → ALB (public subnet) → Target Group → EC2 instances (private subnets)
     - Health checks ensure traffic only routes to healthy instances
     - Auto scaling maintains service availability based on demand
 
-### Implementation Process
+### Terraform Implementation Process
 
 Before deploying our infrastructure, we need to set up our AWS credentials and understand our module structure.
 
-### AWS account Setup
+### Configuring AWS Credentials for Terraform
 
 First, configure your AWS credentials:
 
@@ -85,7 +85,7 @@ Our implementation follows this systematic approach:
 4. Repeat until completion
 5. Apply final configuration
 
-#### Module Validation**
+#### Terraform Init, Validate, and Plan
 
 ```bash
 # Initialize Terraform working directory
@@ -98,7 +98,7 @@ terraform validate
 terraform plan
 ```
 
-### Root module Configuration
+### Terraform Root Module Configuration
 
 Our root module orchestrates all components:
 
@@ -184,11 +184,11 @@ output "alb_dns_name" {
 
 This output provides the ALB DNS name for accessing our application.
 
-### VPC Module: Network Foundation
+### Terraform VPC Module With Public and Private Subnets
 
 The first major component is creating a VPC module with public and private subnets.
 
-#### Module Variables
+#### VPC and Availability Zone Variables
 
 ```bash
 variable "vpc_cidr" {
@@ -204,7 +204,7 @@ variable "azs" {
 }
 ```
 
-### Base VPC Configuration
+### Creating the AWS VPC With Terraform
 
 ```bash
 # Create vpc 
@@ -221,7 +221,7 @@ resource "aws_vpc" "main" {
 - DNS hostname support enabled
 - DNS resolution enabled
 
-### Public Network Layer
+### Public Subnets, Internet Gateway, and Route Tables
 
 ```bash
 # Create public subnets
@@ -262,7 +262,7 @@ resource "aws_route_table_association" "public" {
 - Attached an Internet Gateway to enable direct internet connectivity
 - Configured a public route table with a route to 0.0.0.0/0 via the IGW
 
-### Private Network Layer
+### Private Subnets With NAT Gateway for EC2 Instances
 
 ```bash
 # create private subnets
@@ -318,11 +318,11 @@ resource "aws_route_table_association" "private" {
 - Paired public/private subnets in each AZ
 - Optimized AWS data transfer paths
 
-### Launch Templates and Security Groups
+### EC2 Launch Template and Security Group Configuration
 
 This module defines our instance configurations and security boundaries. I use a security-first approach with separate security groups for the ALB and EC2 instances.
 
-#### Security Group Configuration
+#### AWS Security Groups for ALB and EC2
 
 1. **EC2 Security Group (Private Subnet)**
 
@@ -402,7 +402,7 @@ resource "aws_security_group_rule" "allow_alb_egress" {
 - Routes traffic to EC2 instances
 - Acts as public entry point
 
-#### Launch Template Setup
+#### AWS Launch Template With Ubuntu AMI and User Data
 
 The launch template defines the EC2 instance configuration:
 
@@ -464,7 +464,7 @@ data "aws_ami" "ubuntu" {
 - Enables detailed monitoring
 - Includes user data script for setup
 
-#### IAM Role Configuration
+#### IAM Role and Instance Profile for EC2
 
 Implements least-privilege access:
 
@@ -532,11 +532,11 @@ resource "aws_iam_role_policy" "ec2_custom_policy" {
 - Instance metadata access
 - Basic EC2 operations
 
-### Load Balancer and Auto Scaling Groups
+### Application Load Balancer and Auto Scaling Group Setup
 
 This section configures our application's load balancing and auto scaling capabilities.
 
-#### Application Load Balancer Setup
+#### Creating an Application Load Balancer With Terraform
 
 First, I created the Application Load Balancer in our public subnets:
 
@@ -558,7 +558,7 @@ resource "aws_lb" "main" {
 - Internet-facing for public access
 - Uses security group allowing HTTP traffic
 
-#### Target Group Configuration
+#### ALB Target Group With Health Check Configuration
 
 ```bash
 # create target group
@@ -605,7 +605,7 @@ resource "aws_lb_listener" "http" {
 
 Configured HTTP listener on port 80 to forward traffic to target group
 
-#### Auto Scaling Group Implementation
+#### Auto Scaling Group With Scaling Policies
 
 The ASG manages our EC2 instances:
 
@@ -678,11 +678,11 @@ resource "aws_autoscaling_policy" "scaleDown" {
 - 5-minute cooldown between scaling actions
 - Matches with CloudWatch alarms for CPU metrics
 
-### Monitoring and Alerts
+### CloudWatch Monitoring and SNS Alerts for Auto Scaling
 
 The monitoring strategy combines CloudWatch alarms with SNS notifications to provide comprehensive oversight of the auto-scaling infrastructure.
 
-#### CloudWatch CPU Alarms
+#### CloudWatch CPU Utilization Alarms for Scale-Up and Scale-Down
 
 ```bash
 resource "aws_cloudwatch_metric_alarm" "high_cpu" {
@@ -736,7 +736,7 @@ resource "aws_cloudwatch_metric_alarm" "low_cpu" {
 - Same evaluation period
 - Reduces capacity when load decreases
 
-#### SNS Notification System
+#### SNS Email Notifications for Auto Scaling Events
 
 1. **SNS Topic Setup**
 
@@ -828,21 +828,21 @@ resource "aws_sns_topic_subscription" "email" {
 - Infrastructure health alerts
 - Error conditions
 
-## Implementation Challenges
+## Troubleshooting AWS Auto Scaling Deployment Issues
 
-### Resolving the 502 Bad Gateway
+### How to Fix 502 Bad Gateway Error on AWS ALB
 
 When attempting to access the Application Load Balancer's DNS name, I encountered a 502 Bad Gateway error, indicating a communication breakdown between the load balancer and the backend instances. This led me through a comprehensive troubleshooting process that demonstrates the complexity of debugging distributed systems.
 
 ![Browser showing a 502 Bad Gateway error from the Application Load Balancer](/images/502-gateway.png)
 
-#### Initial Investigation
+#### Debugging Unhealthy Targets in ALB Target Group
 
 After confirming that the EC2 instances were running in their designated private subnets, I discovered that while the instances were operational, the ALB target group showed all targets as unhealthy. This suggested a deeper application-level issue rather than an infrastructure problem. A thorough review of security group configurations and the launch template confirmed that the basic networking and instance setup were correct.
 
 ![ALB target group showing all targets in unhealthy status](/images/unhealthy.png)
 
-#### The Private Subnet Challenge
+#### Using AWS SSM Session Manager to Access Private EC2 Instances
 
 The architecture's security-first design presented an interesting troubleshooting challenge. With EC2 instances deliberately placed in private subnets and no public IP addresses or SSH access configured, traditional debugging approaches weren't viable. The solution required:
 
@@ -919,7 +919,7 @@ I selected the 3 private subnets available for all 3 AZs. Make sure **"Designate
 
 I gave the the policy Full Access since we are debugging
 
-#### Root Cause Analysis
+#### Root Cause: Nginx Not Installed in Launch Template User Data
 
 After gaining instance access through Session Manager, I followed a systematic troubleshooting approach to verify network connectivity and instance configuration:
 
@@ -949,7 +949,7 @@ From there I ran the command `sudo systemctl status nginx` that showed me that n
 2. Creating the index.html file using sudo tee
 3. Enabling and restarting the nginx service
 
-#### Resolution and Lessons Learned
+#### Resolution: Fixing Health Checks and Validating User Data Scripts
 
 ![Healthy instance registered in availability zone us-east-1a](/images/zone1a.png)
 ![Healthy instance registered in availability zone us-east-1b](/images/zone1b.png)

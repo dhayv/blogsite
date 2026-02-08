@@ -1,13 +1,13 @@
 ---
-title: "Managing Kubernetes in a Private AWS VPC: A Secure and Automated Approach"
+title: "Deploy EKS in a Private VPC With Terraform and SSM"
 date: "12-17-2024"
 author: "David Hyppolite"
-excerpt: "Good architecture isn't about using the latest tech - it's about solving real problems."
+excerpt: "Complete guide to deploying an Amazon EKS cluster in a private VPC using Terraform and AWS SSM. No bastion hosts or SSH keys required."
 tags: ['aws', 'kubernetes', 'eks', 'terraform', 'ssm', 'vpc', 'iam', 'docker']
 ---
 In this guide, I demonstrate how to deploy a **production-grade Amazon EKS cluster** within a **private AWS VPC** using **Terraform** and **AWS Systems Manager (SSM)**. This approach enhances security by eliminating the need for SSH keys and bastion hosts, showcasing expertise in **infrastructure as code**, **cloud security**, and **Kubernetes orchestration**.
 
-### What You'll Learn
+### What You Will Learn About EKS and Terraform
 
 - **Deploy a production-grade EKS cluster** in a private VPC
 - **Implement secure access** using AWS Systems Manager
@@ -18,21 +18,21 @@ In this guide, I demonstrate how to deploy a **production-grade Amazon EKS clust
 ### Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Introduction](#introduction)
-  - [Why This Approach?](#why-this-approach)
-  - [Critical Access Configuration](#critical-access-configuration)
-- [Infrastructure Setup and Configuration](#infrastructure-setup-and-configuration)
-  - [Step 1: GitHub Repository](#step-1-github-repository)
-  - [Step 2: IAM Role Configuration](#step-2-iam-role-configuration)
-  - [Step 3: Create ECR Repository](#step-3-create-ecr-repository)
-  - [Step 4: Infrastructure Deployment](#step-4-infrastructure-deployment)
-- [Deployment and Access Configuration](#deployment-and-access-configuration)
-  - [Step 6: Creating the EC2 Instance](#step-6-creating-the-ec2-instance-for-cluster-access)
-  - [Kubernetes Manifests and Deployment](#kubernetes-manifests-and-deployment)
-- [Resource Cleanup](#resource-cleanup)
-- [Optional: Implement CI/CD with GitHub Actions](#optional-implement-cicd-with-github-actions)
+- [Why Deploy EKS in a Private VPC](#why-deploy-eks-in-a-private-vpc)
+  - [Benefits of SSM Over Bastion Hosts for EKS Access](#benefits-of-ssm-over-bastion-hosts-for-eks-access)
+  - [EKS IAM Role and RBAC Access Configuration](#eks-iam-role-and-rbac-access-configuration)
+- [Terraform EKS Infrastructure Setup Step by Step](#terraform-eks-infrastructure-setup-step-by-step)
+  - [Step 1: Clone the EKS Terraform GitHub Repository](#step-1-clone-the-eks-terraform-github-repository)
+  - [Step 2: Create IAM Role for SSM and EKS Access](#step-2-create-iam-role-for-ssm-and-eks-access)
+  - [Step 3: Create Amazon ECR Repository for Docker Images](#step-3-create-amazon-ecr-repository-for-docker-images)
+  - [Step 4: Deploy VPC, EKS Cluster, and Node Groups With Terraform](#step-4-deploy-vpc-eks-cluster-and-node-groups-with-terraform)
+- [Connecting to a Private EKS Cluster With kubectl and SSM](#connecting-to-a-private-eks-cluster-with-kubectl-and-ssm)
+  - [Step 6: Creating an EC2 Jump Box for kubectl Access via SSM](#step-6-creating-an-ec2-jump-box-for-kubectl-access-via-ssm)
+  - [Kubernetes Deployment and Service Manifests for EKS](#kubernetes-deployment-and-service-manifests-for-eks)
+- [Cleaning Up EKS, EC2, and Terraform Resources](#cleaning-up-eks-ec2-and-terraform-resources)
+- [Optional: CI/CD Pipeline With GitHub Actions for EKS](#optional-cicd-pipeline-with-github-actions-for-eks)
 
-### Technologies & Skills
+### Technologies Used: EKS, Terraform, SSM, ECR, and FastAPI
 
 - **AWS EKS**
 - **AWS Systems Manager (SSM)**
@@ -52,11 +52,11 @@ In this guide, I demonstrate how to deploy a **production-grade Amazon EKS clust
 - Terraform installed
 - Docker installed
 
-## **Introduction**
+## Why Deploy EKS in a Private VPC
 
 Deploying an **EKS cluster in a private VPC** ensures that your Kubernetes API server is not exposed to the public internet, enhancing security. However, this setup introduces challenges in managing access and automating infrastructure provisioning. By leveraging **Terraform** and **AWS SSM**, you can automate the entire deployment process, manage IAM roles effectively, and securely access your cluster without exposing it publicly.
 
-### Why This Approach?
+### Benefits of SSM Over Bastion Hosts for EKS Access
 
 - **Enhanced Security:** Deploy EKS clusters in private subnets without exposing SSH ports
 - **Simplified Access:** Use IAM roles instead of managing SSH keys
@@ -64,7 +64,7 @@ Deploying an **EKS cluster in a private VPC** ensures that your Kubernetes API s
 - **Automation Ready:** Infrastructure as Code with Terraform
 - **Production Grade:** Suitable for enterprise environments
 
-### Critical Access Configuration
+### EKS IAM Role and RBAC Access Configuration
 
 **Important:** Two key points about access management:
 
@@ -73,24 +73,24 @@ Deploying an **EKS cluster in a private VPC** ensures that your Kubernetes API s
 
 Missing either of these configurations will prevent access to resources in the private VPC, whether through SSM or via the CLI.
 
-### Why FastAPI?
+### Why FastAPI for Kubernetes Deployments
 
 I used **FastAPI** for the sample application due to its excellent container support and built-in Swagger documentation. While the focus is on the infrastructure setup, FastAPI provides a lightweight, production-ready application perfect for Kubernetes deployments.
 
-### **Architecture Overview**
+### EKS Private VPC Architecture Overview
 
 *Figure: Overview of the EKS deployment architecture, highlighting private VPC, EKS cluster, SSM endpoints, IAM roles, and load balancer setup.*
 
-### Key Takeaways
+### Key Takeaways From This EKS Deployment Guide
 
 - **Mastered deploying EKS in a secure, private environment**
 - **Implemented infrastructure automation with Terraform**
 - **Enhanced security using AWS Systems Manager (SSM)**
 - **Demonstrated proficiency in Kubernetes and cloud networking**
 
-## Infrastructure Setup and Configuration
+## Terraform EKS Infrastructure Setup Step by Step
 
-### Step 1: GitHub Repository
+### Step 1: Clone the EKS Terraform GitHub Repository
 
 Start by organizing your project repository to manage your FastAPI application, Terraform configurations, and deployment scripts.
 
@@ -111,7 +111,7 @@ Repository Structure:
 └── requirements.txt
 ```
 
-### Step 2: IAM Role Configuration
+### Step 2: Create IAM Role for SSM and EKS Access
 
 First, we'll create the necessary IAM role for Systems Manager access:
 
@@ -136,7 +136,7 @@ Provide a name for the role.
 
 Review your settings then click **Create role**.
 
-### Step 3: Create ECR repository
+### Step 3: Create Amazon ECR Repository for Docker Images
 
 To store container image for the FastAPI application, we'll be using Amazon Elastic Container Registry(ECR). While the infrastructure for VPC and EKS will be automated with Terraform, we'll create the ECR repository manually via the AWS console.
 
@@ -160,7 +160,7 @@ In the AWS Console search **ECR** > **Create**
 
 Once your image is pushed let's move on to setting up our VPC and EKS using Terraform.
 
-### Step 4: Infrastructure Deployment
+### Step 4: Deploy VPC, EKS Cluster, and Node Groups With Terraform
 
 Automate the creation of a private VPC, EKS cluster, and node groups using Terraform.
 
@@ -172,7 +172,7 @@ The Terraform configuration creates three key modules:
 
 Below are snippets for the complete Terraform configuration. The full code can be found in the GitHub repository: [Repo](https://github.com/dhayv/aws-kubernetes-deploy/tree/main/terraform/modules)
 
-#### Set up the VPC
+#### Terraform VPC With Public and Private Subnets for EKS
 
 First, we'll set up our VPC with public and private subnets. The public subnets will host our NAT Gateway, while private subnets will contain our EKS nodes.
 
@@ -238,7 +238,7 @@ resource "aws_route_table_association" "public" {
 }
 ```
 
-#### Private subnets
+#### Private Subnets With NAT Gateway for EKS Worker Nodes
 
 ```bash
 
@@ -296,7 +296,7 @@ resource "aws_route_table_association" "private" {
 
 > Note: The NAT Gateway and Internet Gateway ensure proper routing between private subnets and external services.
 
-#### Security Group Configuration
+#### Security Groups for ALB and EKS Cluster Communication
 
 These security groups control access to our EKS cluster and load balancer:
 
@@ -358,7 +358,7 @@ resource "aws_security_group_rule" "allow_eks_egress" {
 
 > Tip: Always define strict ingress and egress rules to maintain security.
 
-#### EKS Cluster Configuration
+#### EKS Cluster and Node Group Terraform Configuration
 
 The EKS cluster is deployed in private subnets, and the ALB will forward traffic to the worker nodes. We let AWS manage the security up for cluster and node group creation this reduces the need for manual intervention.
 
@@ -408,7 +408,7 @@ aws_iam_role_policy_attachment.node_AmazonEC2ContainerRegistryReadOnly,
   ]
 ```
 
-#### EKS Access Entries and Policy Associations
+#### EKS RBAC Access Entries and IAM Policy Associations
 
 ```bash
   data "aws_iam_role" "console_role" {
@@ -439,7 +439,7 @@ resource "aws_eks_access_policy_association" "AdminPolicy" {
 
 > **In the EKS access control replace your name with your create role name**
 
-#### Applying Terraform Configuration
+#### Running Terraform Apply to Deploy EKS Infrastructure
 
 Run the following commands to deploy your infrastructure:
 
@@ -454,17 +454,17 @@ terraform plan
 terraform apply -auto-approve
 ```
 
-## Deployment and Access Configuration
+## Connecting to a Private EKS Cluster With kubectl and SSM
 
 > ⚠️ **Prerequisites Check:** Before proceeding, verify that the IAM role 'EC2RoleForSSM_EKS' or similar exists and has the correct permissions for both SSM and EKS. Remember that only the cluster creator has default access - all other users/roles need explicit RBAC configuration. Missing these steps will prevent cluster access.
 
-### Step 6. Creating the EC2 Instance for Cluster Access
+### Step 6: Creating an EC2 Jump Box for kubectl Access via SSM
 
 We'll create an EC2 instance in our private subnet that will serve as our secure access point to the EKS cluster.
 
 In the AWS console search up **EC2** > **launch Instance**
 
-### Launch EC2 Instance
+### Launch EC2 Instance in Private Subnet Without SSH
 
 **Name:** Give a unique name
 **AMI:** Amazon Linux 2023
@@ -485,7 +485,7 @@ Under Advanced details:
 
 **IAM instance profile:** EC2RoleForSSM_EKS
 
-#### User Data Script
+#### User Data Script to Install kubectl on EC2
 
 Include this script in the EC2 instance user data:
 
@@ -515,7 +515,7 @@ Select the Security tab.
 
 Make a Note of the Security Group ID
 
-##### Allow EC2 access to control plane security group
+##### Allow EC2 to Access EKS Control Plane Security Group
 
 In the AWS  console search **VPC** > **Security Groups**
 
@@ -538,7 +538,7 @@ Click **Edit inbound rules**
 
 Click **Save rules** to apply the changes.
 
-#### Connecting via Systems Manager
+#### Connecting to EC2 via AWS Systems Manager Session Manager
 
 In the AWS Console Search "Systems Manager"
 
@@ -578,16 +578,16 @@ I used:
 aws eks --region us-east-1 update-kubeconfig --name fastAPI-cluster
 ```
 
-## Kubernetes Manifests and Deployment
+## Kubernetes Deployment and Service Manifests for EKS
 
-### Understanding the Manifests
+### Understanding Kubernetes Deployment and Service YAML Files
 
 Our application deployment requires two Kubernetes manifests:
 
 - A Deployment manifest to manage our FastAPI application pods
 - A Service manifest to expose our application through a load balancer
 
-## Deployment Manifest
+## Kubernetes Deployment Manifest With ECR Image
 
 The Deployment manifest (`fastapi-deploy.yaml`) defines how our application should run:
 
@@ -627,7 +627,7 @@ Example ECR URI format:
 123456789012.dkr.ecr.us-east-1.amazonaws.com/fastapi-app:latest
 ```
 
-## Service Manifest
+## Kubernetes Service Manifest With Internal Load Balancer
 
 The Service manifest (`fastapi-service.yaml`) configures how to access our application:
 
@@ -654,7 +654,7 @@ Key components:
 - `type: LoadBalancer`: Provisions an AWS Load Balancer
 - `selector: app: fastapi`: Connects to pods with matching labels
 
-### Deploying the Manifests
+### Deploying With kubectl Apply to EKS
 
 #### 1. Create the deployment file
 
@@ -703,7 +703,7 @@ NAME              TYPE           CLUSTER-IP      EXTERNAL-IP
 fastapi-service   LoadBalancer   XXX.XXX.XXX.XX   internal-xxxxx.us-east-1.elb.amazonaws.com   
 ```
 
-## Troubleshooting Tips
+## Troubleshooting EKS Pod and Service Issues
 
 - If pods aren't starting, check the logs: `kubectl logs <pod-name>`
 - For service issues: `kubectl describe service fastapi-service`
@@ -715,7 +715,7 @@ Access the application using the IP
 
 ![docker-container](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/xrduk2wrprdba6d8fhgq.png)
 
-### Resource Cleanup
+### Cleaning Up EKS, EC2, and Terraform Resources
 
 **Clean Kubernetes Resources:**
 
@@ -739,7 +739,7 @@ terraform destroy -auto-approve
 
 > If you run into terraform resources not being deleted. Delete through console.
 
-### 📝 Conclusion
+### Conclusion: Secure EKS Deployment Without Bastion Hosts
 
 Deploying an EKS cluster within a private VPC enhances security by restricting API access. By leveraging Terraform and AWS Systems Manager, you can automate the provisioning process, manage IAM roles effectively, and securely access your cluster without exposing it to the public internet. This approach not only simplifies infrastructure management but also adheres to best practices for security and scalability in cloud environments.
 
@@ -751,11 +751,11 @@ Deploying an EKS cluster within a private VPC enhances security by restricting A
 - Infrastructure as Code for consistency
 - Containerized application deployment
 
-### 🟢(Optional) Implement CI/CD with GitHub Actions
+### Optional: CI/CD Pipeline With GitHub Actions for EKS
 
 To further streamline your deployment process, integrating a CI/CD pipeline can automate the building and deployment of your FastAPI application. While this blog focuses on setting up the EKS cluster and deploying the application manually, you can enhance your workflow by implementing CI/CD using GitHub Actions.
 
-#### **Basic CI/CD Workflow Overview**
+#### GitHub Actions Workflow: Build, Push to ECR, and Deploy to EKS
 
 1. **Code Commit**: Push your FastAPI application code to GitHub.
 2. **Build**: GitHub Actions triggers a workflow to build your Docker image.

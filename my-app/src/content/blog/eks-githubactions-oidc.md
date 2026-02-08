@@ -1,8 +1,8 @@
 ---
-title: "Build a Secure CI/CD Pipeline for Amazon EKS Using GitHub Actions and AWS OIDC"
+title: "How to Deploy to Amazon EKS With GitHub Actions and OIDC"
 date: "1-29-2025"
 author: "David Hyppolite"
-excerpt: "Learn how to build a secure CI/CD pipeline for Amazon EKS using GitHub Actions, AWS OIDC, and ECR. Deploy FastAPI seamlessly with Kubernetes"
+excerpt: "Deploy to Amazon EKS using GitHub Actions with OIDC authentication. No static AWS credentials needed. Includes ECR, IAM, and Kubernetes setup."
 tags: ['aws', 'eks', 'kubernetes', 'github-actions', 'cicd', 'docker', 'iam']
 ---
 In this guide, I’ll show you how to build a secure **AWS EKS(Kubernetes)** CI/CD pipeline for your FastAPI app complete with **GitHub Actions**, **Docker**, and **OpenID Connect (OIDC)** all while following AWS security best practices like least-privilege IAM policies. We won’t obsess over every detail of FastAPI or Docker, but we’ll cover enough to get your application running on EKS with confidence.
@@ -12,15 +12,15 @@ In this guide, I’ll show you how to build a secure **AWS EKS(Kubernetes)** CI/
 ### Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Step 1: GitHub Repository](#step-1-github-repository)
-- [Step 2: Create an Amazon ECR Repository](#step-2-create-an-amazon-ecr-repository)
-- [Step 3: Create an Amazon EKS Cluster with Eksctl](#step-3-create-an-amazon-eks-cluster-with-eksctl)
-- [Step 4: Set Up a GitHub Actions Workflow for EKS Deployment](#step-4-set-up-a-github-actions-workflow-for-eks-deployment)
-- [Step 5: Github Actions Workflow](#step-5-github-actions-workflow)
-- [Clean Up Resources](#clean-up-resources)
+- [Step 1: Set Up the GitHub Repository](#step-1-set-up-the-github-repository)
+- [Step 2: Create an Amazon ECR Repository for Docker Images](#step-2-create-an-amazon-ecr-repository-for-docker-images)
+- [Step 3: Create an Amazon EKS Cluster Using Eksctl](#step-3-create-an-amazon-eks-cluster-using-eksctl)
+- [Step 4: Configure AWS OIDC for GitHub Actions Authentication](#step-4-configure-aws-oidc-for-github-actions-authentication)
+- [Step 5: Build the GitHub Actions CI/CD Workflow](#step-5-build-the-github-actions-cicd-workflow)
+- [Clean Up AWS EKS Resources](#clean-up-aws-eks-resources)
 - [Conclusion](#conclusion)
 
-### Technologies & Skills
+### Technologies and AWS Services Used
 
 - **AWS EKS** (Kubernetes on AWS)
 - **FastAPI**
@@ -28,14 +28,14 @@ In this guide, I’ll show you how to build a secure **AWS EKS(Kubernetes)** CI/
 - **Cloud Security & IAM**
 - **Kubernetes Orchestration**
 
-## Prerequisites
+## Prerequisites for EKS Deployment With GitHub Actions
 
 - **AWS Account:** Admin permissions for creating EKS clusters, IAM roles, and ECR repositories.
 - AWS CLI installed and configured: [Install Guide](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 - eksctl installed: [Installation Guide](https://eksctl.io/installation/)
 - Docker installed: [Get Started with Docker](https://www.docker.com/get-started/)
 
-## **Introduction**
+## Why Use OIDC for GitHub Actions and AWS EKS
 
 Managing Kubernetes on AWS via EKS is a great approach, but configuring secure access for CI/CD can be tricky. With OIDC, GitHub Actions can assume roles in AWS without storing secret keys, so no static credentials, Let’s walk through setting up an EKS cluster, creating an ECR repo, and configuring GitHub Actions to deploy our FastAPI service to Kubernetes automatically.
 
@@ -46,15 +46,15 @@ This guide walks through:
 3. Configuring OIDC so GitHub Actions can assume an IAM role
 4. Deploying the FastAPI application to EKS
 
-### Key Takeaways
+### What You Will Learn in This EKS CI/CD Tutorial
 
 - **Security-First CI/CD:** By using OIDC, there’s no need to embed AWS credentials in GitHub.
 - **Least-Privilege Access:** You’ll attach minimal IAM permissions, restricted to your ECR repo or EKS cluster.
 - **Easy Automation:**  GitHub Actions automatically builds, pushes, and deploys whenever you push code to your main branch.
 
-## Step-by-Step Guide
+## Step-by-Step: Deploy to EKS With GitHub Actions
 
-### Step 1: GitHub Repository
+### Step 1: Set Up the GitHub Repository
 
 Create (or use) a repository that holds your FastAPI app and Kubernetes manifests:
 
@@ -70,7 +70,7 @@ Repository Structure:
 
 > Keep your code organized. The .yaml files will be applied to EKS to deploy the FastAPI service.
 
-### Step 2: Create an Amazon ECR Repository
+### Step 2: Create an Amazon ECR Repository for Docker Images
 
 Amazon ECR is used to store your Docker images.
 
@@ -98,7 +98,7 @@ aws ecr describe-repositories --region us-east-1
 
 > This is important if you want to create inline IAM policies restricting actions to this specific repository.
 
-### Step 3: Create an Amazon EKS Cluster with Eksctl
+### Step 3: Create an Amazon EKS Cluster Using Eksctl
 
 Make sure you have the AWS CLI and Eksctl installed on your device to create the EKS cluster.
 Using eksctl, create the EKS cluster:
@@ -129,13 +129,13 @@ Verify the cluster:
 kubectl get nodes
 ```
 
-### Step 4: Set Up a GitHub Actions Workflow for EKS Deployment
+### Step 4: Configure AWS OIDC for GitHub Actions Authentication
 
 To avoid storing permanent AWS credentials in GitHub, we’ll configure OpenID Connect (OIDC) so GitHub Actions can assume roles in AWS. [Guthub Action in AWS](https://aws.amazon.com/blogs/security/use-iam-roles-to-connect-github-actions-to-actions-in-aws/)
 
 If you have previously created a Identity provider for GitHub skip this step if not create one:
 
-#### Add a New OIDC Provider
+#### Add a GitHub OIDC Identity Provider in AWS IAM
 
 Go to the **AWS Console** > **IAM** > **Identity Providers** > **Add provider**.
 
@@ -147,7 +147,7 @@ Next **Add provider**.
 
 ![IAM Identity Provider configuration screen with OpenID Connect settings for GitHub Actions](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/zxkmr82acbcr2ki9b5ki.png)
 
-#### Assign a role
+#### Create an IAM Role for GitHub Actions OIDC
 
 Copy the Identity provider role arn.
 
@@ -281,7 +281,7 @@ You can verify your entry:
 aws eks list-access-entries --cluster-name fastapi-demo
 ```
 
-### Step 5: Github actions Workflow
+### Step 5: Build the GitHub Actions CI/CD Workflow
 
 Finally, set up your GitHub Actions workflow to build, push, and deploy automatically.
 
@@ -349,11 +349,11 @@ jobs:
 
 ```
 
-#### Understanding Our GitHub Actions Workflow for AWS Deployment
+#### Understanding the GitHub Actions EKS Deployment Workflow
 
 Let's walk through our CI/CD pipeline that automates deploying applications to AWS using GitHub Actions. This workflow handles everything from building Docker images to deploying on EKS, all while maintaining security best practices.
 
-##### Workflow Triggers and Permissions
+##### GitHub Actions Workflow Triggers and OIDC Permissions
 
 ```yaml
 name: Deploy to AWS
@@ -379,7 +379,7 @@ permissions:
 
 These permissions enable OIDC authentication with AWS while keeping access to our GitHub repository read-only - following the principle of least privilege.
 
-##### Secure AWS Authentication
+##### Authenticate GitHub Actions With AWS Using OIDC
 
 ```yaml
 - name: Configure AWS credentials
@@ -395,7 +395,7 @@ This step establishes secure communication with AWS using OIDC. Instead of stori
 - Push images to ECR
 - Deploy to our EKS cluster
 
-##### Container Image Management
+##### Build and Push Docker Images to Amazon ECR
 
 ```yaml
 - name: Login to Amazon ECR
@@ -419,7 +419,7 @@ Here's where we handle our Docker image:
 3. We tag it with the git commit SHA for version tracking
 4. Finally, we push it to our ECR repository
 
-##### EKS Deployment
+##### Deploy to Amazon EKS With Kubectl
 
 ```yaml
 - name: Update kube config
@@ -442,7 +442,7 @@ The final stage deploys our application to EKS:
 2. Update our Kubernetes manifests with the new image details
 3. Apply both the deployment and service configurations
 
-##### Security Considerations
+##### Security Best Practices for GitHub Actions and AWS
 
 - All sensitive values are stored as GitHub secrets
 - OIDC provides secure, temporary AWS credentials
@@ -451,7 +451,7 @@ The final stage deploys our application to EKS:
 
 Remember to replace the placeholder values (anything starting with $) with your specific information when setting up this workflow.n
 
-### Github Secrets
+### Store AWS Credentials as GitHub Actions Secrets
 
 Store your AWS account details as secrets:
 It is good practice to not hardcode sensitive information but we still need to use it to save sensitive infornation we will be using GitHub secrets.
@@ -474,7 +474,7 @@ AWS_ROLE_ARN # Role created
 EKS_CLUSTER_NAME
 ```
 
-#### Push Code and Access Cluster
+#### Trigger the Pipeline and Verify EKS Deployment
 
 You can monitor the progress of your CI/CD pipeline by visiting the “GitHub Actions” tab in your repository. Here, you’ll see the status of each step in your workflow.
 
@@ -488,7 +488,7 @@ IN the AWS console got to **EC2** > **Load balancer**
 
 Copy the DNS name and go to port 80.
 
-### Clean up resources
+### Clean Up AWS EKS Resources
 
 When you’re done, it’s best to delete unneeded resources to avoid costs:
 
@@ -498,6 +498,6 @@ eksctl delete cluster --name=fastapi-demo
 
 Also, remove or delete the ECR repository if you no longer need it.
 
-### Conclusion
+### Summary: Secure EKS Deployment With GitHub Actions OIDC
 
 Congratulations! You’ve created a fully automated pipeline that deploys a FastAPI app to EKS, all without embedding long-lived AWS credentials in GitHub. By pairing OIDC with carefully scoped IAM policies, you maintain strong security practices while enjoying a streamlined deployment process.

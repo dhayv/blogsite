@@ -1,11 +1,11 @@
 ---
-title: "'How to Fix Next.js CloudFront Permission Denied': Complete Guide to Static Export URL Issues"
+title: "Fix Next.js CloudFront 403 Access Denied on S3 Static Export"
 date: "12-13-2024"
 author: David Hyppolite
 tags: ['aws', 'nextjs', 'cloudfront', 'debugging']
-excerpt: "Solving complex URL routing issues with Next.js static exports on AWS CloudFront and S3"
+excerpt: "How to fix Next.js CloudFront 403 access denied errors caused by URL routing mismatches on S3 static exports using CloudFront Functions."
 ---
-## Technical Overview
+## Skills Demonstrated: AWS, Next.js, Terraform, and Cloud Debugging
 
 This post demonstrates my expertise in:
 
@@ -18,7 +18,7 @@ This post demonstrates my expertise in:
 
 **Tech Stack**: Next.js, AWS (CloudFront, S3, Lambda), Terraform, Python, JavaScript, CI/CD
 
-## The Engineering Journey
+## Why Next.js Static Exports Return 403 on CloudFront
 
 Being an engineer, you're always learning things on the fly, and when you're hosting your own services, you're always running into unexpected bugs.
 
@@ -26,7 +26,7 @@ I hope this post helps somebody out there. Typically, issues like these are due 
 
 It's harder to know what to expect in production, especially in situations like these where you can't locally simulate the architecture to address edge cases.
 
-## The Initial Setup
+## Configuring Next.js trailingSlash for S3 Static Export
 
 I was originally building my Next.js files as a static site on S3 using this code in next.config.ts and using trailingSlash to export all files as index.html:
 
@@ -62,7 +62,7 @@ Now when I use `output: 'export'` with `trailingSlash: false`, my files are bein
 
 That set up the directories beautifully on my S3 bucket but sadly did not address the permission denied issue. The problem had to be a path-based issue when the application accessed the logs.
 
-## Setting Up CloudFront Logging
+## Setting Up CloudFront Access Logs With S3
 
 I wanted to understand deeply what was going on, so let's create logs to see what CloudFront is doing.
 
@@ -74,7 +74,7 @@ First, I created an S3 bucket to add CloudFront logs, using the default settings
 
 ![s3 bucket bottom page](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/awajjnphn49oay5tnbj3.png)
 
-### Configuring CloudFront Access
+### Enabling Standard Logging on a CloudFront Distribution
 
 - Go to your current CloudFront distribution and navigate to the Logging tab
 
@@ -104,7 +104,7 @@ or
 
 We cannot access the logs directly as they are zipped. This is where Lambda comes in.
 
-## Setting Up Amazon Lambda
+## Using AWS Lambda to Decompress CloudFront Log Files
 
 Why use Amazon lambda?
 
@@ -174,7 +174,7 @@ def lambda_handler(event, context):
 
 The only addition to the original code given is this will allow us to unzip the log files in the s3 bucket.
 
-### Adding S3 Permissions
+### Adding IAM Inline Policy for Lambda S3 Access
 
 Now we need to add permissions for our Lambda role to access the S3 bucket:
 
@@ -217,7 +217,7 @@ We can now see the access logs are being successfully decompressed.
 
 You want to go through your logs to get the exact errors and paths affected.
 
-## Creating the CloudFront Function
+## Creating a CloudFront Function for URL Rewriting
 
 After analyzing the logs, we can create a CloudFront function to rewrite the URLs properly:
 
@@ -254,7 +254,7 @@ Now save your changes.
 
 ![Cloudfront association](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/cjfvievvi9xjurc1bpiw.png)
 
-### Deploying the Function
+### Publishing and Associating the CloudFront Function
 
 - Publish the function
 
@@ -270,16 +270,16 @@ Wait for your Distribution to redeploy, then invalidate your cache. Open your si
 
 This solution worked for my case. If it doesn't work for you, go through your set of logs to see what the errors/paths are and alter your function accordingly - that's what I did.
 
-## Key Learnings and Root Cause
+## Root Cause: S3 URL Path Mismatch With CloudFront
 
-### Understanding URL Path Behavior
+### How Static Export URL Paths Cause 403 Errors
 
 - Static site generators like Next.js create HTML files for each route
 - S3 expects full file paths (e.g., `/about.html`) while users access clean URLs (e.g., `/about`)
 - CloudFront and S3 handle URL paths differently in production vs local development
 - The URL mismatch causes permission denied errors only on direct access or page refreshes
 
-### Key Technical Insights
+### Next.js, CloudFront, and S3 Integration Lessons
 
 1. **Next.js Configuration Impact**:
    - `trailingSlash` setting significantly affects URL structure
@@ -298,7 +298,7 @@ This solution worked for my case. If it doesn't work for you, go through your se
    - Cost-effective solution for URL path manipulation
    - Allows flexible routing rules based on your needs
 
-### Prevention Tips for Others
+### How to Prevent Next.js CloudFront 403 Errors
 
 - Start with `trailingSlash: false` in Next.js when using CloudFront
 - Set up comprehensive logging before deploying to production
