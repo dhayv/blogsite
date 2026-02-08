@@ -1,8 +1,8 @@
 ---
-title: "Resolving the Lambda S3 Trigger Error "
+title: "Fix: S3 Lambda Trigger \"Configuration Is Ambiguously Defined\""
 date: "12-10-2024"
 author: "David Hyppolite"
-excerpt: "I encountered a puzzling error. The AWS Console showed no issues"
+excerpt: "How to fix the AWS Lambda S3 trigger error 'Configuration is ambiguously defined' caused by overlapping suffixes in hidden event notification rules."
 tags: ['aws', 'lambda', 's3', 'debugging']
 ---
 While setting up a Lambda function to process S3 logs, I encountered an error that wasn't immediately obvious how to resolve:
@@ -11,7 +11,7 @@ While setting up a Lambda function to process S3 logs, I encountered an error th
 
 The error appeared when trying to set up the trigger through the AWS Console. My use case was straightforward - I needed to process logs as they arrived in an S3 bucket. The Lambda function was created successfully, but the S3 trigger configuration kept failing.
 
-## What Didn't Work
+## Troubleshooting Steps That Did Not Fix the S3 Trigger Error
 
 Initially, I tried:
 
@@ -21,7 +21,7 @@ Initially, I tried:
 
 None of these steps resolved the issue, and the error message wasn't particularly helpful in pointing to the real problem.
 
-## Finding the Actual Issue
+## Finding Hidden S3 Event Notification Configurations With AWS CLI
 
 The breakthrough came when I decided to inspect the bucket's configuration using the AWS CLI:
 
@@ -46,7 +46,7 @@ $ aws s3api get-bucket-notification-configuration --bucket "my-bucket"
 }
 ```
 
-## The Solution
+## How to Clear Overlapping S3 Event Notification Rules
 
 With this discovery, the fix was simple:
 
@@ -56,13 +56,13 @@ aws s3api put-bucket-notification-configuration --bucket "my-bucket" --notificat
 
 This command cleared out the hidden configuration, allowing me to successfully create the new trigger for the log processing function.
 
-## Lessons Learned
+## Key Takeaways for AWS S3 Lambda Trigger Debugging
 
 1. The AWS Console doesn't always show the full picture of your resource configurations
 2. When dealing with S3 event notifications, the CLI can reveal hidden settings
 3. Sometimes starting with a clean slate is the quickest path to resolution
 
-## Further Reading
+## AWS Documentation: S3 Event Notification and Lambda Triggers
 
 For official documentation and more details about this issue:
 

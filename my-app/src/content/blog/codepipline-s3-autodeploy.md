@@ -1,19 +1,19 @@
 ---
-title: "Automating Website Deployments with AWS CodePipeline and S3 No Upload"
+title: "How to Deploy a Static Website to S3 With AWS CodePipeline"
 date: "12-9-2024"
 author: "David Hyppolite"
-excerpt: "Zero-touch process from Github to S3 using Codeipeline"
+excerpt: "Automate static website deployment from GitHub to S3 using AWS CodePipeline. A step-by-step CI/CD tutorial with IAM and version control."
 tags: ['aws', 'codepipeline', 'cicd', 's3']
 ---
 A step-by-step implementation of automated deployments using AWS CodePipeline, S3 static website hosting, and GitHub integration. This project demonstrates CI/CD pipeline creation, IAM security configuration, and version-controlled deployments - replacing traditional FTP uploads with a zero-touch solution.
 
-### Initial Architecture
+### AWS CodePipeline to S3 Architecture Overview
 
 ![Lucid Architecture](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/hhc8ojuzon5atmo5zuxb.png)
 
-## Business Value
+## Why Automate Static Website Deployment With CodePipeline
 
-### Business Benefits
+### Benefits of Automated S3 Deployment
 
 - **Zero Manual Intervention:** Automates the deployment process.
 - **Complete Deployment History:** Maintains a detailed record of all deployments.
@@ -21,13 +21,13 @@ A step-by-step implementation of automated deployments using AWS CodePipeline, S
 - **Secure Access Control:** Uses IAM roles to manage permissions securely.
 - **Reduced Human Error:** Minimizes mistakes associated with manual uploads.
 
-## The Problem
+## The Problem With Manual FTP Deployments
 
 Your retail company currently maintains its static website content on-premises, relying on manual FTP uploads for updates. This manual approach often results in incomplete or inconsistent deployments, making it difficult to maintain a reliable version history or roll back changes when issues arise. With holiday promotions driving sudden traffic spikes, the site frequently struggles under the burden of rushed, ad-hoc updates—leading to downtime, frustrated customers, and missed revenue opportunities.
 
 By introducing a fully automated CI/CD pipeline, you can eliminate the need for FTP uploads, ensure a consistent deployment history, and improve your site’s resiliency, especially during critical high-traffic periods.
 
-### Common Issues with FTP Deployments
+### Common FTP Deployment Issues CodePipeline Solves
 
 - **Incomplete Uploads:** Can break the website if files aren't fully uploaded.
 - **Lack of Deployment History:** No records of what was deployed and when.
@@ -35,9 +35,9 @@ By introducing a fully automated CI/CD pipeline, you can eliminate the need for 
 - **No Rollback Capability:** Unable to revert to previous versions easily.
 - **Security Vulnerabilities:** FTP lacks robust security measures, exposing the site to potential threats.
 
-## The Solution: AWS CodePipeline
+## How AWS CodePipeline Automates S3 Deployments
 
-### Key Takeaways
+### What You Will Learn in This CodePipeline Tutorial
 
 - **Automated Deployments:** Eliminate the risks associated with FTP.
 - **Version Control:** Provides a comprehensive deployment history.
@@ -49,9 +49,9 @@ While many tutorials jump straight to CloudFront and custom domains, let's focus
 
 Instead of manually uploading files to S3, this guide demonstrates a true zero-touch process. We'll start with an empty S3 bucket and let CodePipeline handle the entire deployment lifecycle.
 
-## Implementation Guide
+## Step-by-Step: Setting Up AWS CodePipeline With S3
 
-### **Step 1:** GitHub Repository Setup
+### Step 1: Connect GitHub Repository to CodePipeline
 
 Create your HTML file by running the following command in your repository:
 
@@ -80,7 +80,7 @@ Copy and paste the provided HTML code:
 
 Push your code to your repo.
 
-### **Step** 2: S3 Configuration
+### Step 2: Configure S3 Bucket for Static Website Hosting
 
 First, create an S3 bucket with static website hosting:
 
@@ -108,7 +108,7 @@ Enable Versioning (we are simulating a company its important to have versioning 
 
 Accept the remaining defaults and create the bucket.
 
-#### Enable Static Website Hosting
+#### Enable S3 Static Website Hosting
 
 After creating your bucket, select it and navigate to the **Properties** tab. Scroll down to **Static website hosting** and click **Edit**.
 
@@ -121,7 +121,7 @@ After creating your bucket, select it and navigate to the **Properties** tab. Sc
 
 We Have created a bucket but we don't have the necessary permissions to access the items in the bucket.
 
-#### Configure Bucket Policy
+#### Configure S3 Bucket Policy for Public Access
 
 Navigate to the **Permissions** tab and scroll to **Bucket Policy**.
 
@@ -148,7 +148,7 @@ Click **Edit** and add the following policy to grant public read access to your 
 
 Adapt the **Resource** to match your bucket name, then save changes.
 
-### **Step 3:** CodePipeline Setup
+### Step 3: Create an AWS CodePipeline for S3 Deployment
 
 In the AWS Console, search for and select **CodePipeline**.
 
@@ -164,7 +164,7 @@ Click **Next**.
 
 ![pipeline-step2](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/tdcvq5e9omwz011vj5pr.png)
 
-#### Pipeline Settings
+#### CodePipeline Settings and IAM Service Role
 
 - **Name the Pipeline:** Choose a meaningful name.
 - **Service Role:** Select New service role to allow AWS to create a role automatically.
@@ -173,7 +173,7 @@ Click **Next**.
 
 - **Advanced settings:** Use the default location to allow AWS to create an S3 bucket for CodePipeline artifacts, which will maintain deployment history.
 
-#### Add Source Stage
+#### Add GitHub as the Source Stage
 
 ![Image-description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/l22l7xvoq8ut7wh5w04t.png)
 
@@ -193,7 +193,7 @@ Click **Authorize AWS Connector for Github** to grant AWS access to your GitHub 
 - If working with multiple organizations, select the specific user or organization repositories you want to use.
 - Click **Connect**.
 
-#### Configure Source Stage
+#### Configure GitHub Source Stage Settings
 
 - **Source Provider:** GitHub (via GitHub App)
 - **Connection:** Your GitHub connection
@@ -205,12 +205,12 @@ Click **Authorize AWS Connector for Github** to grant AWS access to your GitHub 
 
 ![build-stage](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/wt69syzf54d9w2v55czh.png)
 
-#### Skip Build and Test Stages
+#### Skip Build and Test Stages for Static Sites
 
 - Since you're deploying HTML files, you can skip the build stage.
 - Optionally, skip the test stage.
 
-#### Deploy stage
+#### Configure S3 as the Deploy Stage
 
 ![deploy-stage](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/i4tzc66p806shvk3v7od.png)
 
@@ -221,11 +221,11 @@ Click **Authorize AWS Connector for Github** to grant AWS access to your GitHub 
 - **Extract file before deploy:** Checked
 - Click **Next**.
 
-#### Review and Create Pipeline
+#### Review and Create the CodePipeline
 
 - Review all settings and click **Create Pipeline**.
 
-### **Step4:** Testing and Verification
+### Step 4: Test the Automated S3 Deployment Pipeline
 
 Pipeline automatically starts
 
@@ -247,7 +247,7 @@ With versioning enabled, you can track deployments:
 
 ![first-upload](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/4uav1w1bu2v2w831are0.png)
 
-## Making Changes and Verifying Deployment
+## Verify Auto-Deploy: Push Changes From GitHub to S3
 
 Make a change in your repository with a commit message like "Update index.html" to update the deployment version to 2.
 
@@ -261,6 +261,6 @@ View the updated site reflecting the changes:
 
 ![site-changes](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/a5g2reqkc09rp181rms7.png)
 
-### Conclusion
+### Summary: Automated S3 Deployment With CodePipeline
 
 By following this guide, you've successfully set up an automated, secure, and efficient deployment pipeline using AWS CodePipeline, S3 static website hosting, and GitHub. This zero-touch solution not only streamlines your deployment process but also enhances security, provides version control, and ensures high availability during peak traffic periods.

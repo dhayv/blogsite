@@ -9,9 +9,10 @@ interface Props {
   author: string;
   tags: string[];
   body: string;
+  excerpt?: string;
 }
 
-const { title, date, author, tags, body } = Astro.props;
+const { title, date, author, tags, body, excerpt } = Astro.props;
 const readingTime = getReadingTime(body);
 
 const formattedDate = date.toLocaleDateString('en-US', {
@@ -21,7 +22,7 @@ const formattedDate = date.toLocaleDateString('en-US', {
 });
 ---
 
-<BaseLayout title={`${title} | David Hyppolite's Blog`} description={title}>
+<BaseLayout title={`${title} | David Hyppolite's Blog`} description={excerpt || title} ogType="article">
   <article>
     <header class="mb-6 border-b border-gray-200 dark:border-gray-700/60 pb-6">
       <h1 class="text-4xl font-bold tracking-tight mb-4">{title}</h1>

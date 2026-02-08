@@ -1,11 +1,11 @@
 ---
-title: "Zero-Touch AWS Deployments: Building a Modern CI/CD Pipeline with GitHub Actions and CloudFront"
+title: "How to Build a CI/CD Pipeline With GitHub Actions, Docker, and AWS"
 date: "12-17-2024"
 author: "David Hyppolite"
-excerpt: "Good architecture isn't about using the latest tech - it's about solving real problems."
+excerpt: "Build a GitHub Actions CI/CD pipeline to deploy Docker containers to EC2 and static files to S3 and CloudFront using OIDC and self-hosted runners."
 tags: ['aws', 'github-actions', 'cicd', 'docker', 'cloudfront', 's3', 'ec2']
 ---
-## Tech Stack Deep Dive
+## Tech Stack: GitHub Actions, Docker, AWS S3, CloudFront, and EC2
 
 - **CI/CD & DevOps:** GitHub Actions for automation, self-hosted runners for deployment
 - **Containerization:** Docker for consistent backend deployments
@@ -19,13 +19,13 @@ tags: ['aws', 'github-actions', 'cicd', 'docker', 'cloudfront', 's3', 'ec2']
 [GitHub](https://github.com/dhayv/WiseWalletWin)
 [Github Actions Workflow](https://github.com/dhayv/WiseWalletWin/blob/main/.github/workflows/CI_CD.yml)
 
-## The Wake-Up Call
+## Why I Replaced Manual Deployments With CI/CD
 
 It started with a simple need: I wanted to know exactly how much money I needed to set aside before payday to cover my next two weeks. Simple enough, right? I built [Wisewallet](wisewalletwin.com) to solve this problem, but little did I know this straightforward application would become my crash course in modern cloud architecture and DevOps practices.
 
 Picture this: It's 10 PM, and I'm staring at my terminal, hands slightly shaking as I rsync changes. My EC2 had to be rebooted instance, taking my SQLite database with it into the digital void. All that data, gone. Again. My monolithic setup - a React frontend, Python backend, SQLite database, and Nginx, all crammed onto a single EC2 instance - was starting to feel like a house of cards.
 
-## The Breaking Point
+## Problems With Manual rsync Deployments to EC2
 
 Every deployment was a small adventure in anxiety. I'd SSH into my server, fingers crossed, hoping my rsync command wouldn't miss any crucial files or add files that shouldn't belong:
 
@@ -54,18 +54,18 @@ Old manual and Tedious
 
 Each step was another chance for something to go wrong. And things did go wrong. Often. The EC2 instance would run out of storage during npm install. The build would timeout. The database would vanish with instance restarts. It was like playing DevOps roulette, and I was losing sleep over it. The app was not usable - it was a burden for months, constantly having to add the information over again.
 
-## The Rumination Phase
+## Migrating From SQLite to MongoDB Atlas for Data Persistence
 
 I spent weeks turning the problem over in my mind. The data loss issue haunted me the most. I kept thinking, "There has to be a better way to handle persistence." That's when I started researching MongoDB Atlas. The idea of a managed database service was appealing - no more data loss anxiety, automatic backups, and scaling without the headache. But I wrestled with the decision - was I overcomplicating things? Was I just adding unnecessary complexity?
 
 Then there was the frontend deployment issue. Every time I needed to update the UI, I had to run `npm run build` on the EC2 instance. It was slow, resource-intensive, and frankly, felt wrong. The lightbulb moment came during a particularly frustrating deployment: "Why am I building static files on a server? These could live anywhere!"
 
-## The Architecture Evolution
+## Architecture: Splitting a Monolith Into S3, CloudFront, and Docker
 
 Current CI/CD pipeline
 ![Architecture diagram of the CI/CD pipeline from GitHub Actions to S3 and CloudFront](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/x1fxlq1be66gx5l62j0m.png)
 
-### Breaking Free from the Monolith
+### Moving the Frontend to S3 and CloudFront
 
 The first major decision was moving to MongoDB Atlas. It wasn't just about preventing data loss - it was about peace of mind. Knowing my data would survive any EC2 mishaps was worth the migration effort. The process taught me about data modeling, replication, and the true value of managed services. It took some time to change my code over from SQL to NoSQL but it was worth it.
 
@@ -77,7 +77,7 @@ This led to an interesting architecture: two CloudFront distributions - one for 
 - Caching at the edge
 - Cost-effective compared to an ALB for my use case
 
-### The CI/CD Epiphany
+### Automating Docker Deployments With GitHub Actions and DockerHub
 
 The manual deployment process still bothered me. I wanted zero SSH access needed for routine deployments, and I wanted to essentially mimic the exact steps I did manually but automated without errors or forgetting anything. The solution came in layers:
 
@@ -130,7 +130,7 @@ The key was sending the built image to DockerHub to be held until needed.
 
 Then came the systemd services - one to keep the runner alive, another to manage the container lifecycle. No more manual intervention needed.
 
-### Installing a Self-Hosted Runner
+### Setting Up a GitHub Actions Self-Hosted Runner on EC2
 
 The process is straightforward:
 
@@ -179,7 +179,7 @@ EnvironmentFile=/etc/app.env
 WantedBy=multi-user.target
 ```
 
-### Building the Static Files
+### Building and Deploying React Static Files With GitHub Actions
 
 No more manual npm run build, npm installs, or timeouts:
 
@@ -223,7 +223,7 @@ No more manual npm run build, npm installs, or timeouts:
           npm run build
 ```
 
-### The Security Evolution
+### Securing AWS Access With OIDC Instead of Stored Credentials
 
 The final piece was security. Storing AWS credentials in GitHub secrets felt wrong. That's when I discovered AWS OpenID Connect. The ability to generate temporary credentials just when needed was exactly what I was looking for. It was a perfect example of the principle of least privilege in action. It allowed me to get my static images to S3 and invalidate my CloudFront cache instantly to apply changes - the only stored credentials are fairly simple:
 
@@ -246,7 +246,7 @@ The final piece was security. Storing AWS credentials in GitHub secrets felt wro
             --paths "/index.html"
 ```
 
-## The Results
+## Results: Fully Automated Deployments With Zero SSH Access
 
 The transformation has been dramatic. What used to be a stress-inducing manual process is now a simple git push, but with a twist - the deploy is now manual so I can send features once a month. The architecture is distributed but not overly complex. Each component does one thing well:
 
@@ -257,7 +257,7 @@ The transformation has been dramatic. What used to be a stress-inducing manual p
 
 More importantly, I sleep better at night. No more 10 PM panic sessions. No more data loss anxiety. No more deployment roulette.
 
-## Looking Forward
+## Next Steps: ECS, Integration Tests, and Serverless
 
 This journey taught me that good architecture isn't about using the latest tech - it's about solving real problems. Each decision was driven by a specific pain point, not just a desire to use cool technology.
 

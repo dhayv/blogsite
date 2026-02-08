@@ -6,12 +6,16 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  ogType?: string;
 }
 
 const {
   title = "David Hyppolite's Blog",
   description = 'A blog documenting the journey of a self-taught Cloud Engineer.',
+  ogType = 'website',
 } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
@@ -20,6 +24,14 @@ const {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <title>{title}</title>
     <link rel="preload" href="/fonts/GeistVF.woff" as="font" type="font/woff" crossorigin />
     <link rel="preload" href="/fonts/GeistMonoVF.woff" as="font" type="font/woff" crossorigin />

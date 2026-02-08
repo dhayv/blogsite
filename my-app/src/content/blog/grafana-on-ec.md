@@ -1,21 +1,21 @@
 ---
-title: "Deploying Grafana on an AWS EC2 Instance(2025)"
+title: "How to Set Up Grafana on EC2 With CloudWatch Monitoring"
 date: "3-5-2025"
 author: "David Hyppolite"
-excerpt: "Deploy Grafana on AWS EC2 for real-time performance monitoring and proactive cloud infrastructure management using Instance Connect."
+excerpt: "Step-by-step tutorial to install Grafana on an AWS EC2 instance, connect CloudWatch as a data source, and build real-time monitoring dashboards."
 tags: ['aws', 'grafana', 'monitoring', 'ec2', 'iam']
 ---
 This blog post walks you through setting up **Grafana** on an **AWS EC2** instance to visualize real-time performance metrics and run stress tests, all while being secured by using Instance Connect to bypass the need for SSH.
 
-## Problem
+## Why You Need Grafana Monitoring on EC2
 
 Cloud infrastructure issues often go undetected until they cause downtime costing businesses thousands per minute and putting immense pressure on engineering teams.
 
-## Solution
+## What This Grafana EC2 Tutorial Covers
 
 This tutorial demonstrates how to implement proactive monitoring with Grafana on AWS EC2. You’ll learn to deploy an EC2 instance, attach the necessary IAM role, integrate CloudWatch, and configure Grafana to visualize performance metrics in real time.
 
-## Why This Matters
+## Skills You Will Gain From This AWS Monitoring Setup
 
 Mastering this setup enables you to:
 
@@ -24,11 +24,11 @@ Mastering this setup enables you to:
 - Integrate AWS CloudWatch for comprehensive monitoring.
 - Create dynamic Grafana dashboards for real-time performance visualization.
 
-## What You'll Learn
+## Expected Outcome: Complete Grafana CloudWatch Dashboard
 
 By following this guide, you will achieve a complete AWS monitoring setup that not only demonstrates your infrastructure deployment skills but also provides visual proof of your ability to monitor and manage real-time performance metrics effectively.
 
-## Tools Used
+## Prerequisites and Tools Used
 
 - **AWS Console:** For managing EC2 and IAM roles.
 - **Grafana:** For visualization, dashboard creation, and alerting.
@@ -37,7 +37,7 @@ By following this guide, you will achieve a complete AWS monitoring setup that n
 - **Stress:** Command-line tool to simulate load on the instance.
 - **Instance Connect:** For connecting to the EC2 instance without SSH.
 
-### Step 1 Create your IAM role
+### Step 1: Create an IAM Role for Grafana CloudWatch Access
 
 In the AWS Console, navigate to **Roles** and click **Create Role**.
 
@@ -54,7 +54,7 @@ Provide a unique name for your role.
 
 Click **Create Role**.
 
-### Step 2 Launch your instance
+### Step 2: Launch an EC2 Instance and Install Grafana
 
 Launch and install Grafana on an EC2 instance.
 
@@ -111,7 +111,7 @@ You should see Grafana running, similar to the provided screenshot.
 
 ![grafana check](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/tyt3ba08p3irx321benc.png)
 
-## Step 3 Connect to Grafana UI
+## Step 3: Open Grafana UI on Port 3000
 
 Gain Access to the security group of your EC2 instance.
 
@@ -139,7 +139,7 @@ password: admin
 
 You can skip the password change prompt if desired.
 
-## Step 4 Configure a data source
+## Step 4: Connect CloudWatch as a Grafana Data Source
 
 Grafana needs to be provided a data source to fetch and display data.
 
@@ -159,7 +159,7 @@ Use these settings:
 
 Click **Save & test**. You should see a confirmation message indicating that the queries to the CloudWatch metrics and logs APIs were successful.
 
-### Build a Dashboard
+### Build a Grafana Dashboard for EC2 CPU Metrics
 
 On the success page, click **Build a dashboard** > **Add visualization**
 
@@ -193,7 +193,7 @@ Congratultions! You should now see your first queried Data from your EC2 instanc
 
 ![grafana-data](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/wig0s9fpusvqczfwbq1w.png)
 
-## Step 5 Stress test the EC2
+## Step 5: Run an EC2 Stress Test and View Results in Grafana
 
 We can stress test our EC2 to see check the results on Grafana.
 
@@ -221,7 +221,7 @@ After the test completes, check your Grafana dashboard to see the updated metric
 
 ![stess-visual](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/okv6g3gnxiatink8i8b4.png)
 
-## Conclusion
+## Summary: Grafana on EC2 With CloudWatch Integration
 
 By following these steps, you've successfully deployed Grafana on an EC2 instance, attached the necessary IAM role, and set up monitoring for CPU utilization using CloudWatch. This guide demonstrates a straightforward approach to achieving real-time monitoring with AWS and Grafana, providing essential insights for system performance analysis and stress testing.
 

@@ -1,12 +1,12 @@
 ---
-title: "Building a Cloud-Native Blog Platform with Terraform"
+title: "Deploy a Static Site on AWS With Terraform, S3, and CloudFront"
 date: "11-25-2024"
 author: "David Hyppolite"
-excerpt: "A journey through building a cloud-native blog platform using Terraform and AWS services"
+excerpt: "Step-by-step guide to deploying a static website on AWS using Terraform with S3, CloudFront, IAM, and GitHub Actions CI/CD automation."
 tags: ['aws', 'terraform', 'github-actions', 'cicd', 'cloudfront', 's3', 'iam', 'route53']
 ---
 
-## Why Build Another Blog Platform?
+## Why Use Terraform Instead of the AWS Console?
 
 "Just use WordPress," they said. "You could have it up in minutes."
 
@@ -21,9 +21,9 @@ I needed a platform that would:
 
 The real value? The gap between knowing how to do something in the console and implementing it in Terraform. That's where the learning happens. That's where engineers grow.
 
-## Architectural Decisions
+## AWS Architecture: S3, CloudFront, IAM, and Route 53
 
-### Core Infrastructure Components
+### Core AWS Infrastructure Components
 
 I designed the architecture with several key requirements in mind:
 
@@ -34,14 +34,14 @@ I designed the architecture with several key requirements in mind:
 
 Here's how each piece fits together:
 
-#### Content Delivery and Security
+#### CloudFront, ACM, OAI, and S3 Configuration
 
 - **CloudFront Distribution**: Handles HTTPS termination, caching, and low-latency delivery
 - **ACM (AWS Certificate Manager)**: Manages SSL certificates for secure communication
 - **Origin Access Identity (OAI)**: Restricts S3 access exclusively to CloudFront
 - **S3 Bucket**: Hosts static files with versioning enabled
 
-#### Infrastructure Management
+#### Terraform State, IAM Roles, and OIDC Federation
 
 - **Private S3 Backend**: Maintains Terraform state files securely
 - **IAM Roles**: Enables long-term automation with least privilege
@@ -49,11 +49,11 @@ Here's how each piece fits together:
 
 This setup not only adheres to AWS’s six pillars of well-architected frameworks but also taught me the intricacies of networking and IaC.
 
-## The Real Challenges: A Sequential Journey
+## Troubleshooting Terraform With AWS: Common Errors and Fixes
 
 What looks like a straightforward architecture on paper turned into a complex troubleshooting journey. Here's how each challenge led to the next:
 
-### 1. The Hosted Zone Puzzle
+### 1. Fixing Terraform Route 53 Hosted Zone Lookup Errors
 
 Initially, Terraform couldn't access the hosted zone by name. While AWS CLI could find it, Terraform kept failing. This was my first hint that something deeper was wrong, though I didn't realize it yet.
 
@@ -69,7 +69,7 @@ data "zone_id" "primary" {
 }
 ```
 
-### 2. The Multi-Account Maze
+### 2. Resolving AWS Multi-Account Permission Errors in Terraform
 
 The hosted zone issue unveiled a complex problem: I was unknowingly trying to access resources across multiple AWS accounts without proper cross-account permissions. Here's how it manifested:
 
@@ -96,7 +96,7 @@ export AWS_PROFILE=default
 
 But this created conflicts when trying to switch between accounts. The real issue? The Terraform role lacked cross-account access permissions.
 
-### 3. Cross-Account Resource Management
+### 3. Configuring AWS CLI Profiles for Cross-Account Access
 
 The situation became clear:
 
@@ -114,7 +114,7 @@ Resolution required systematic cleanup:
 
 The resolution of these issues marked a significant turning point in the project. Not only did I manage to streamline the AWS architecture by ensuring resources were correctly aligned with their respective accounts, but I also reinforced best practices in AWS management and Terraform usage. This process underscored the importance of vigilant account management and served as a valuable lesson in maintaining clarity and organization in cloud environments.
 
-### 4. CI/CD Pipeline Optimization
+### 4. Passing Environment Variables to Terraform in GitHub Actions
 
 The final challenge emerged in the CI/CD pipeline. While the YAML was syntactically correct, Terraform operations were hanging at Terraform Plan. The root cause? Environment variables needed to be passed to each Terraform command individually:
 
@@ -141,7 +141,7 @@ The final challenge emerged in the CI/CD pipeline. While the YAML was syntactica
     terraform apply -auto-approve tfplan 
 ```
 
-# Working solution
+# Fix: Add env Block to Every Terraform Step in GitHub Actions
 
 ```yaml
 - name: Terraform Init
@@ -176,7 +176,7 @@ The final challenge emerged in the CI/CD pipeline. While the YAML was syntactica
 
 This challenge took me two hours to solve, highlighting the importance of understanding the nuances of Terraform commands within CI/CD pipelines and reinforcing the need for meticulous configuration to ensure smooth automation.
 
-## Key Learnings
+## Terraform and AWS Best Practices Learned
 
 1. **Account Management is Critical**
 
@@ -200,7 +200,7 @@ This challenge took me two hours to solve, highlighting the importance of unders
     - Maintain separation of concerns between accounts
     - Document environment variable requirements
 
-## Embracing the Hard Path
+## From AWS Console to Infrastructure as Code With Terraform
 
 One year ago, I made a choice: stop settling for the easy path. I had already built multiple AWS projects. Already maintained Linux servers. Already earned my AWS Solutions Architect certification. But Terraform? That was my next mountain to climb.
 
@@ -223,7 +223,7 @@ Was it harder? Absolutely.
 Did it take longer? Without question.
 Was it worth it? Every frustrating minute.
 
-## Looking Forward
+## AWS Well-Architected Framework in Practice
 
 This platform isn't just a blog—it's a testament to the complexity and learning opportunities in modern cloud architecture. Every challenge forced me to dig deeper into AWS services, Terraform behavior, and Cloud practices.
 
@@ -235,7 +235,7 @@ The final architecture follows AWS Well-Architected Framework principles:
 - **Cost Optimization**: Practically Free
 - **Operational Excellence**: Fully automated deployments
 
-## Code Examples and Documentation
+## Terraform Source Code and GitHub Repository
 
 [Github Code](https://github.com/dhayv/blogsite)
 

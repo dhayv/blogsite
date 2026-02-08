@@ -20,6 +20,7 @@ const { Content } = await post.render();
   author={post.data.author}
   tags={post.data.tags}
   body={post.body ?? ''}
+  excerpt={post.data.excerpt}
 >
   <Content />
 </BlogPostLayout>
