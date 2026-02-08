@@ -39,6 +39,10 @@ jobs:
         run: npm ci
         working-directory: ./my-app
 
+      - name: Security Audit
+        run: npm audit --audit-level=high
+        working-directory: ./my-app
+
       - name: Build Astro Site
         run: npm run build
         working-directory: ./my-app
@@ -49,6 +53,14 @@ jobs:
         uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           terraform_version: "latest"
+
+      - name: Terraform Security Scan
+        uses: aquasecurity/trivy-action@22438a435773de8c97dc0958cc0b823c45b064ac # post-v0.33.1 
+        with:
+          scan-type: 'config'
+          scan-ref: './terraform-config'
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
 
       - name: Terraform Init
         run: terraform init
