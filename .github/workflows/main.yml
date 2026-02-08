@@ -1,7 +1,14 @@
 name: Deploy
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -13,43 +20,39 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           role-session-name: GitHubActionsSession
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Cache
-        uses: actions/cache@v4
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
-          path: |
-            **/node_modules
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: './my-app/package-lock.json'
 
       - name: Install Dependencies
-        run: |
-          cd ./my-app
-          npm install
+        run: npm ci
+        working-directory: ./my-app
 
       - name: Build Astro Site
-        run: |
-          cd ./my-app
-          npm run build
+        run: npm run build
+        working-directory: ./my-app
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2.0.3
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
         with:
           terraform_version: "latest"
 
       - name: Terraform Init
-        run: |
-          cd ./terraform-config
-          terraform init
+        run: terraform init
+        working-directory: ./terraform-config
         env:
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
           TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
@@ -57,9 +60,8 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: |
-          cd ./terraform-config
-          terraform plan -out=tfplan
+        run: terraform plan -out=tfplan
+        working-directory: ./terraform-config
         env:
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
           TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
@@ -67,9 +69,8 @@ jobs:
 
       - name: Terraform Apply
         id: apply
-        run: |
-          cd ./terraform-config
-          terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve tfplan
+        working-directory: ./terraform-config
         env:
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
           TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
@@ -82,4 +83,14 @@ jobs:
         run: |
           aws cloudfront create-invalidation \
           --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-          --paths "/*"
+          --paths "/" "/blog" "/blog/*" "/404.html"
+
+      - name: Check the deployed service URL
+        uses: jtalk/url-health-check-action@b716ccb6645355dd9fcce8002ce460e5474f7f00 # v4
+        with:
+          url: https://${{ secrets.DOMAIN_NAME }}|https://${{ secrets.DOMAIN_NAME }}/blog
+
+          follow-redirect: false 
+          max-attempts: 3 
+          retry-delay: 5s 
+          retry-all: false 
