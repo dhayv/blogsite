@@ -60,8 +60,9 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -out=tfplan
+        run: terraform plan -out=tfplan -detailed-exitcode
         working-directory: ./terraform-config
+        continue-on-error: true
         env:
           TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
           TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
@@ -69,6 +70,7 @@ jobs:
 
       - name: Terraform Apply
         id: apply
+        if: steps.plan.outcome == 'failure'  
         run: terraform apply -auto-approve tfplan
         working-directory: ./terraform-config
         env:
