@@ -8,7 +8,14 @@ resource "aws_s3_bucket" "blog" {
 
 }
 
+resource "aws_s3_bucket_public_access_block" "blog" {
+  bucket = aws_s3_bucket.blog.id
 
+  block_public_acls   = true
+  ignore_public_acls  = true
+  block_public_policy = true
+  restrict_public_buckets = true
+}
 
 resource "aws_s3_bucket_versioning" "versioning" {
   bucket = aws_s3_bucket.blog.id
@@ -49,3 +56,4 @@ data "aws_iam_policy_document" "bucket_policy" {
     }
   }
 }
+
