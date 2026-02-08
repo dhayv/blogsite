@@ -89,7 +89,7 @@ jobs:
 
       - name: Terraform Apply
         id: apply
-        if: steps.plan.outcome.code == '2'  
+        if: steps.plan.outputs.code == '2'  
         run: terraform apply -auto-approve tfplan
         working-directory: ./terraform-config
         env:
