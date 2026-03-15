@@ -1,0 +1,2 @@
+# Trivy config so ignore file is used when scanning from any cwd
+ignorefile: .trivyignore

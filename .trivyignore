@@ -1,0 +1,9 @@
+# S3 public access block – addressed via aws_s3_bucket_public_access_block (separate resource)
+AVD-AWS-0086
+AVD-AWS-0087
+AVD-AWS-0091
+AVD-AWS-0093
+# S3 CMK encryption – using SSE-S3 (AES256) via separate resource, CMK not needed for a public blog
+AVD-AWS-0132
+# CloudFront WAF – not using (cost)
+AVD-AWS-0043
