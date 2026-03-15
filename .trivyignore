@@ -6,4 +6,4 @@ AVD-AWS-0093
 # S3 CMK encryption – using SSE-S3 (AES256) via separate resource, CMK not needed for a public blog
 AVD-AWS-0132
 # CloudFront WAF – not using (cost)
-AVD-AWS-0043
+AVD-AWS-0011
