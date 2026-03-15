@@ -1,7 +1,7 @@
 # S3 public access block – we use aws_s3_bucket_public_access_block (separate resource)
-AWS-0086
-AWS-0087
-AWS-0091
-AWS-0093
-# WAF – not using
-AWS-0011
+AVD-AWS-0086
+AVD-AWS-0087
+AVD-AWS-0091
+AVD-AWS-0093
+# WAF – not using (cost)
+AVD-AWS-0011
