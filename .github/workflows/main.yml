@@ -50,7 +50,7 @@ jobs:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
 
       - name: Terraform Security Scan
-        uses: aquasecurity/trivy-action@22438a435773de8c97dc0958cc0b823c45b064ac # post-v0.33.1 
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # v0.69.3 
         with:
           scan-type: 'config'
           scan-ref: './terraform-config'
