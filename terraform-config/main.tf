@@ -1,4 +1,11 @@
 terraform {
+  cloud {
+  hostname = "app.terraform.io"
+  organization = "blogsite"
+  workspaces {
+    name = "blogsite"
+  }
+}
     required_providers {
       aws = {
         source = "hashicorp/aws",
@@ -11,7 +18,6 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
-  profile = var.aws_profile
 }
 
 
@@ -49,16 +55,6 @@ module "route53" {
   cloudfront_distribution_hosted_zone_id = module.cloudfront.distribution_hosted_zone_id
   zone_id = var.zone_id
 
-}
-
-
-terraform {
-  backend "s3" {
-    bucket         = "my-terraform-blog-state-bucket"
-    key            = "blogsite/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-  }
 }
 
 
