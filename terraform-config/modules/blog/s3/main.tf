@@ -24,6 +24,15 @@ resource "aws_s3_bucket_versioning" "versioning" {
   }
 }
 
+resource "aws_s3_bucket_server_side_encryption_configuration" "blog" {
+  bucket = aws_s3_bucket.blog.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
 locals {
     s3_origin_id = "myS3Origin"
 }
