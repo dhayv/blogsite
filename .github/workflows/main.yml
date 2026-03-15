@@ -49,54 +49,6 @@ jobs:
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
-        with:
-          terraform_version: "latest"
-
-      - name: Terraform Security Scan
-        uses: aquasecurity/trivy-action@22438a435773de8c97dc0958cc0b823c45b064ac # post-v0.33.1 
-        with:
-          scan-type: 'config'
-          scan-ref: './terraform-config'
-          exit-code: '1'
-          severity: 'HIGH,CRITICAL'
-
-      - name: Terraform Init
-        run: terraform init
-        working-directory: ./terraform-config
-        env:
-          TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
-          TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
-          TF_VAR_zone_id: ${{ secrets.ZONE_ID }}
-
-      - name: Terraform Plan
-        id: plan
-        run: |
-          set +e
-          terraform plan -out=tfplan -detailed-exitcode 
-          code=$?
-          echo "code=$code" >> "$GITHUB_OUTPUT"
-          [ "$code" -eq 1 ] && exit 1 || true
-          # Exit code 0 apply is skipped.
-          # Exit code 2 apply runs.
-          # Exit code 1 job fails.
-        working-directory: ./terraform-config
-        env:
-          TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
-          TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
-          TF_VAR_zone_id: ${{ secrets.ZONE_ID }}
-
-      - name: Terraform Apply
-        id: apply
-        if: steps.plan.outputs.code == '2'  
-        run: terraform apply -auto-approve tfplan
-        working-directory: ./terraform-config
-        env:
-          TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
-          TF_VAR_aws_region: ${{ secrets.AWS_REGION }}
-          TF_VAR_zone_id: ${{ secrets.ZONE_ID }}
-
       - name: Upload to s3
         run: aws s3 sync ./my-app/dist s3://${{ secrets.S3_BUCKET_NAME }} --delete
 
