@@ -49,6 +49,14 @@ jobs:
         env:
           DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
 
+      - name: Terraform Security Scan
+        uses: aquasecurity/trivy-action@22438a435773de8c97dc0958cc0b823c45b064ac # post-v0.33.1 
+        with:
+          scan-type: 'config'
+          scan-ref: './terraform-config'
+          exit-code: '1'
+          severity: 'HIGH,CRITICAL'
+
       - name: Upload to s3
         run: aws s3 sync ./my-app/dist s3://${{ secrets.S3_BUCKET_NAME }} --delete
 
